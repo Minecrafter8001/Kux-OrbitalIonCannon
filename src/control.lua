@@ -245,10 +245,15 @@ Events.on_load(this.onLoad)
 script.on_configuration_changed(this.initialize)
 
 commands.add_command("ion-cannon", {"command-help.ion-cannon"}, function(event)
-	local player = game.players[event.player_index]
+	local player = game.players[event.player_index] --[[@as LuaPlayer]]
 	if player.admin then
 		if event.parameter == "reset-gui" then
 			ModGui.reset(player)
+		elseif event.parameter == "research" then
+			player.print("Researching Ion Cannon")
+			player.force.technologies["orbital-ion-cannon"].research_recursive()
+		else
+			player.print("Unknown command "..event.parameter)
 		end
 	end
 end)

@@ -16,7 +16,7 @@ function utils.merge(common, data, final_fixes)
 
 	return merged
 end
-
+local isSpaceTravel = feature_flags["space_travel"]
 local fx = {common = {}}
 
 --- CreateEntityTriggerEffectItem - 'create-entity'
@@ -181,7 +181,9 @@ local function create_projectile(name, radius, damageFactor)
 end
 local radius = settings.startup["ion-cannon-radius"].value --[[@as double]]
 create_projectile("crosshairs", radius, 1.0)
-create_projectile("crosshairs-mk2", radius *1.5, 10)
+if isSpaceTravel then
+	create_projectile("crosshairs-mk2", radius *1.5, 10)
+end
 
 
 data:extend{
@@ -355,46 +357,52 @@ yuge_crater.ground_patch_higher.sheet.scale = settings.startup["ion-cannon-radiu
 data:extend({yuge_crater})
 
 if not settings.startup["ion-cannon-flames"].value then
-	data.raw["projectile"]["crosshairs"].action = {
-		{
-			type = "area",
-			radius = settings.startup["ion-cannon-radius"].value,
-			action_delivery =
+	local function createAction(radiusFactor, damageFactor)
+		return {
 			{
-				type = "instant",
-				target_effects = {
-					{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"} },
-					{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"} }
+				type = "area",
+				radius = settings.startup["ion-cannon-radius"].value * radiusFactor,
+				action_delivery =
+				{
+					type = "instant",
+					target_effects = {
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"} },
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"} }
+					}
 				}
-			}
-		},
-		{
-			type = "direct",
-			action_delivery =
+			},
 			{
-				type = "instant",
-				target_effects = {
-					{ type = "create-entity", entity_name = "huge-explosion" },
-					{ type = "create-entity", entity_name = "ion-cannon-beam" },
-					{ type = "create-entity", entity_name = "enormous-scorchmark", check_buildability = true },
-					{ type = "create-entity", entity_name = "ion-cannon-explosion", trigger_created_entity = true }
+				type = "direct",
+				action_delivery =
+				{
+					type = "instant",
+					target_effects = {
+						{ type = "create-entity", entity_name = "huge-explosion" },
+						{ type = "create-entity", entity_name = "ion-cannon-beam" },
+						{ type = "create-entity", entity_name = "enormous-scorchmark", check_buildability = true },
+						{ type = "create-entity", entity_name = "ion-cannon-explosion", trigger_created_entity = true }
+					}
 				}
-			}
-		},
-		{
-			type = "area",
-			radius = settings.startup["ion-cannon-radius"].value,
-			action_delivery =
+			},
 			{
-				type = "instant",
-				target_effects = {
-					{ type = "create-fire", entity_name = "fire-flame-on-tree" },
-					{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"}},
-					{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"}}
+				type = "area",
+				radius = settings.startup["ion-cannon-radius"].value * radiusFactor,
+				action_delivery =
+				{
+					type = "instant",
+					target_effects = {
+						{ type = "create-fire", entity_name = "fire-flame-on-tree" },
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2 * damageFactor, type = "laser"}},
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2 * damageFactor, type = "explosion"}}
+					}
 				}
 			}
 		}
-	}
+	end
+	data.raw["projectile"]["crosshairs"].action = createAction(1, 1)
+	if isSpaceTravel then
+		data.raw["projectile"]["crosshairs"].action = createAction(1.5, 10)
+	end
 end
 
 

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.3
+  Bugfixes:
+    - fix orbital-ion-canon item for the vanilla version
+    - adapt damage and radius w/o flames for mk2
+---------------------------------------------------------------------------------------------------
 Version: 3.8.2
   Bugfixes:
     - fix a incompatibiliy with 5dim

@@ -19,4 +19,3 @@ data:extend({
 		consuming = "none"
 	}
 })
-
