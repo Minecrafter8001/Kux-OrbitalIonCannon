@@ -1,6 +1,6 @@
 require "modules.tools"
-local Area =  require("__stdlib__/stdlib/area/area") -- required for Chunk
-local Chunk = require("__stdlib__/stdlib/area/chunk")
+local Area =  require("__Kux-CoreLib__/stdlib/area/area") -- required for Chunk
+local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
 require "modules.ion-cannon-table"
 
 --local turretBlacklist = {"ion-cannon-targeter", "kr-tesla-coil-turret"}
@@ -12,7 +12,7 @@ function findNestNear(entity, chunk_position)
 		return spawners[math.random(#spawners)]
 	end
 	if settings.global["ion-cannon-target-worms"].value then
-		local worms = entity.surface.find_entities_filtered{area = search, type = "turret", limit = 6, collision_mask = "player-layer"} --limit is arbitrarily set for testing, can/should be reduced later if it doesn't cause any undesirable behavior
+		local worms = entity.surface.find_entities_filtered{area = search, type = "turret", limit = 6, collision_mask = "player"} --limit is arbitrarily set for testing, can/should be reduced later if it doesn't cause any undesirable behavior
 		if #worms > 0 then
 			return worms[math.random(#worms)]
 		end
@@ -41,8 +41,8 @@ local processQueue = function ()
 		--print("tryToFire",force.name,countIonCannonsReady(force, target.surface),settings.global["ion-cannon-min-cannons-ready"].value )
 		if countIonCannonsReady(force, target.surface) <= settings.global["ion-cannon-min-cannons-ready"].value then return false end
 		local current_tick = game.tick
-		if global.auto_tick >= current_tick then return false end
-		global.auto_tick = current_tick + (settings.startup["ion-cannon-heatup-multiplier"].value * 210)
+		if storage.auto_tick >= current_tick then return false end
+		storage.auto_tick = current_tick + (settings.startup["ion-cannon-heatup-multiplier"].value * 210)
 		local fired = targetIonCannon(force, target.position, target.surface)
 		if not fired then return false end
 		alertCannonFired(force, target, {"ion-cannon-target-location", true, target.position.x, target.position.y, "Auto"});
@@ -70,7 +70,7 @@ script.on_event(defines.events.on_sector_scanned, function(event)
 	--local s = settings.global["ion-cannon-min-cannons-ready"].value
 	--local c = countIonCannonsReady(event.radar.force, event.radar.surface)
 	--print(p,t,s,c)
-	if not global.permissions[-2] then return end
+	if not storage.permissions[-2] then return end
 	local radar = event.radar
 	local force = radar.force
 	if not force.technologies["auto-targeting"].researched then return end

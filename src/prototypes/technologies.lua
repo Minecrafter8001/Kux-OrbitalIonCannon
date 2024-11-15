@@ -1,12 +1,12 @@
 
 	local prerequision2level = 6
-	local prerequision2name= "energy-weapons-damage-"
+	local prerequision2name= "laser-weapons-damage-"
 
 	if mods["space-exploration"] and settings.startup["ion-cannon-early-recipe"].value then prerequision2level = 2 end
 	if data.raw.technology["rampant-arsenal-technology-energy-weapons-damage-6"] then prerequision2name="rampant-arsenal-technology-energy-weapons-damage-" end
 
 	local rocketSiloPrerequisite = "rocket-silo"
-	
+
 
 	local ingredientsCannon =
 	{
@@ -39,7 +39,7 @@
 		{"military-science-pack", 1},
 		{"space-science-pack", 1}
 	}
-	if not mods["space-exploration"] or not settings.startup["ion-cannon-early-recipe"].value then 
+	if not mods["space-exploration"] or not settings.startup["ion-cannon-early-recipe"].value then
 		table.insert(ingredientsTargeting, {"utility-science-pack", 1})
 		table.insert(ingredientsTargeting, {"production-science-pack", 1})
 	end
@@ -51,7 +51,10 @@
 			name = "orbital-ion-cannon",
 			icon = ModPath.."graphics/icon64.png",
 			icon_size = 64,
-			prerequisites = {rocketSiloPrerequisite, prerequision2name..prerequision2level},
+			prerequisites = {
+				rocketSiloPrerequisite,
+				prerequision2name..prerequision2level
+			},
 			effects =
 			{
 				{
@@ -88,6 +91,7 @@
 		},
 	})
 
+--[[ --TODO implement this
 if settings.startup["ion-cannon-bob-updates"].value then
 	if data.raw["technology"]["energy-weapons-damage-6"] and data.raw["technology"]["bob-laser-turrets-5"] and data.raw["item"]["bob-laser-turret-5"] then
 		table.insert(data.raw["technology"]["orbital-ion-cannon"].prerequisites, "energy-weapons-damage-6")
@@ -102,3 +106,4 @@ if settings.startup["ion-cannon-bob-updates"].value then
 		table.insert(data.raw["technology"]["orbital-ion-cannon"].prerequisites, "bob-solar-energy-3")
 	end
 end
+]]

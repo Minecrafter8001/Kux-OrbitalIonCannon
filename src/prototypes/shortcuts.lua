@@ -8,7 +8,7 @@ data.raw.item["ion-cannon-targeter"].flags = data.raw.item["ion-cannon-targeter"
 if newBaseVersion then table.insert(data.raw.item["ion-cannon-targeter"].flags, "spawnable") end
 
 --[[local color = function (category, color, text)
-	
+
 end]]
 
 data:extend({
@@ -18,24 +18,28 @@ data:extend({
         localised_name = {"", "[color=red]", {"technology-name.artillery"}, ": [/color]", {"controls.ion-cannon-targeter"} },
         order = "d[artillery]-e[ion-cannon-targeter]",
         -- associated_control_input = "ion-cannon-targeter",
-        action = "lua", -- script.on_event(defines.events.on_lua_shortcut,...)
+        --action = "lua", --> script.on_event(defines.events.on_lua_shortcut,...)
+		action = "spawn-item",
+		item_to_spawn = "ion-cannon-targeter",
         style = "red",
         technology_to_unlock = "orbital-ion-cannon",
-        icon = {
-            filename = ModPath.."graphics/ion-cannon-targeter-x32-white.png",
+        icons = {{
+            icon = ModPath.."graphics/ion-cannon-targeter-x32-white.png",
             priority = "extra-high-no-scale",
-            size = 32,
+            icon_size = 32,
             scale = 0.5,
             flags = {"gui-icon"}
-        },
-        small_icon = {
-            filename = ModPath.."graphics/ion-cannon-targeter-x24-white.png",
-            priority = "extra-high-no-scale",
-            size = 24,
-            scale = 0.5,
-            flags = {"gui-icon"}
-        }
-	},
+        }},
+        small_icons = {
+			{
+				icon = ModPath.."graphics/ion-cannon-targeter-x24-white.png",
+				priority = "extra-high-no-scale",
+				icon_size = 24,
+				scale = 1, -- 0.5,
+				flags = {"gui-icon"}
+			}
+		}
+	}--[[@as data.ShortcutPrototype]],
 })
 
 data:extend({

@@ -1,4 +1,4 @@
-data:extend({
+data:extend{
 	{
 		type = "item",
 		name = "ion-cannon-targeter",
@@ -8,9 +8,9 @@ data:extend({
 		subgroup = "capsule",
 		order = "c[target]",
 		stack_size = 1,
-		flags = {"not-stackable"},
-	}
-})
+		flags = {"not-stackable", "only-in-cursor","spawnable"}
+	}--[[@as data.ItemPrototype]]
+}
 
 data:extend({
 	{
@@ -21,11 +21,13 @@ data:extend({
 		category = "crafting",
 		ingredients =
 		{
-			{"processing-unit", 1},
-			{"plastic-bar", 2},
-			{"battery", 1}
+			{type="item", name ="processing-unit", amount=1},
+			{type="item", name ="plastic-bar", amount=2},
+			{type="item", name ="battery", amount=1}
 		},
-		result = "ion-cannon-targeter"
+		results = {
+			{type="item", name="ion-cannon-targeter", amount=1}
+		}
 	},
 })
 
@@ -38,9 +40,8 @@ local ion_cannon_targeter = util.table.deepcopy(data.raw["ammo-turret"]["gun-tur
 ion_cannon_targeter.name = "ion-cannon-targeter"
 ion_cannon_targeter.icon = ModPath.."graphics/crosshairs64.png"
 ion_cannon_targeter.icon_size = 64
-ion_cannon_targeter.icon_mipmaps = 0
 ion_cannon_targeter.flags = {--[["placeable-off-grid",]] "not-on-map"} --"placeable-off-grid" prevents placement via the map. TODO: verify
-ion_cannon_targeter.collision_mask = {}
+ion_cannon_targeter.collision_mask = {layers ={}}
 ion_cannon_targeter.max_health = 1
 ion_cannon_targeter.inventory_size = 0
 ion_cannon_targeter.collision_box = {{0, 0}, {0, 0}}
@@ -63,8 +64,8 @@ ion_cannon_targeter.folded_animation =
 		}
 	}
 }
-ion_cannon_targeter.base_picture =
-{
+--[[
+ion_cannon_targeter.base_picture{
 	layers =
 	{
 		{
@@ -78,7 +79,30 @@ ion_cannon_targeter.base_picture =
 			shift = {0, 0}
 		}
 	}
+}]]
+ion_cannon_targeter.graphics_set  = {
+	base_visualisation = {
+		animation = {
+			north = {
+				layers =
+				{
+					{
+						filename = ModPath.."graphics/crosshairs64.png",
+						line_length = 1,
+						width = 64,
+						height = 64,
+						frame_count = 1,
+						axially_symmetrical = false,
+						direction_count = 1,
+						shift = {0, 0}
+					}
+				}
+			}
+		}
+	}
 }
+
+
 ion_cannon_targeter.attack_parameters =
 {
 	type = "projectile",

@@ -6,4 +6,4 @@ if mods["5dim_compatibility"] then
 end
 
 --Remove any collision masks mistakenly added by other mods
-data.raw["ammo-turret"]["ion-cannon-targeter"].collision_mask = {}
+data.raw["ammo-turret"]["ion-cannon-targeter"].collision_mask = {layers={}}

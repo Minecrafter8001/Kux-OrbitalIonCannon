@@ -14,57 +14,34 @@ data:extend({
 	{
 		type = "recipe",
 		name = "orbital-ion-cannon",
-		normal =
-		{
-			enabled = false,
-			energy_required = 60,
-			ingredients =
-			{
-				{"low-density-structure", 100},
-				{"solar-panel", 100},
-				{"accumulator", 200},
-				{"radar", 10},
-				{"processing-unit", 200},
-				{"electric-engine-unit", 25},
-				{"laser-turret", 50},
-				{"rocket-fuel", 50}
-			},
-			result = "orbital-ion-cannon"
+		energy_required = 60,
+		ingredients = {
+			{ type = "item", name = "low-density-structure", amount = 100 },
+			{ type = "item", name = "solar-panel", amount = 100 },
+			{ type = "item", name = "accumulator", amount = 200 },
+			{ type = "item", name = "radar", amount = 10 },
+			{ type = "item", name = "processing-unit", amount = 200 },
+			{ type = "item", name = "electric-engine-unit", amount = 25 },
+			{ type = "item", name = "laser-turret", amount = 50 },
+			{ type = "item", name = "rocket-fuel", amount = 50 }
 		},
-		expensive =
-		{
-			enabled = false,
-			energy_required = 60,
-			ingredients =
-			{
-				{"low-density-structure", 250},
-				{"solar-panel", 250},
-				{"accumulator", 500},
-				{"radar", 25},
-				{"processing-unit", 500},
-				{"electric-engine-unit", 50},
-				{"laser-turret", 100},
-				{"rocket-fuel", 100}
-			},
-			result = "orbital-ion-cannon"
-		},
+		results = {
+			{ type = "item", name = "orbital-ion-cannon", amount = 1 }
+		}
+
 	},
 })
 
 --TODO update to not use array indices
 if data.raw["item"]["advanced-processing-unit"] and settings.startup["ion-cannon-bob-updates"].value then
-	data.raw["recipe"]["orbital-ion-cannon"].normal.ingredients[5] = {"advanced-processing-unit", 200}
-	data.raw["recipe"]["orbital-ion-cannon"].expensive.ingredients[5] = {"advanced-processing-unit", 500}
+	data.raw["recipe"]["orbital-ion-cannon"].ingredients[5] = {type = "item", name = "advanced-processing-unit", amount=200}
 end
 
 if data.raw["item"]["bob-laser-turret-5"] and settings.startup["ion-cannon-bob-updates"].value then
-	data.raw["recipe"]["orbital-ion-cannon"].normal.ingredients[7] = {"bob-laser-turret-5", 50}
-	data.raw["recipe"]["orbital-ion-cannon"].expensive.ingredients[7] = {"bob-laser-turret-5", 100}
+	data.raw["recipe"]["orbital-ion-cannon"].ingredients[7] = {type = "item", name = "bob-laser-turret-5", amount=50}
 end
 
 if data.raw["item"]["fast-accumulator-3"] and data.raw["item"]["solar-panel-large-3"] and settings.startup["ion-cannon-bob-updates"].value then
-	data.raw["recipe"]["orbital-ion-cannon"].normal.ingredients[2] = {"solar-panel-large-3", 100}
-	data.raw["recipe"]["orbital-ion-cannon"].expensive.ingredients[2] = {"solar-panel-large-3", 250}
-	data.raw["recipe"]["orbital-ion-cannon"].normal.ingredients[3] = {"fast-accumulator-3", 200}
-	data.raw["recipe"]["orbital-ion-cannon"].expensive.ingredients[3] = {"fast-accumulator-3", 500}
+	data.raw["recipe"]["orbital-ion-cannon"].ingredients[2] = {type = "item", name = "solar-panel-large-3", amount=100}
+	data.raw["recipe"]["orbital-ion-cannon"].ingredients[3] = {type = "item", name = "fast-accumulator-3", amount=200}
 end

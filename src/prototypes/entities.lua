@@ -29,7 +29,7 @@ data:extend({
 						{
 							type = "create-entity",
 							entity_name = "ion-cannon-explosion",
-							trigger_created_entity = "true"
+							trigger_created_entity = true
 						},
 						{
 							type = "show-explosion-on-chart",
@@ -394,7 +394,7 @@ if not settings.startup["ion-cannon-flames"].value then
 					{
 						type = "create-entity",
 						entity_name = "ion-cannon-explosion",
-						trigger_created_entity = "true"
+						trigger_created_entity = true
 					}
 				}
 			}

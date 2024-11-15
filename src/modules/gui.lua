@@ -12,12 +12,12 @@ ModGui = {}
 local on_gui_checked_state_changed = function(event)
 	local checkbox = event.element
 	if checkbox.name == "show" then
-		global.goToFull[event.player_index] = false
-		global.permissions[-1] = checkbox.state
+		storage.goToFull[event.player_index] = false
+		storage.permissions[-1] = checkbox.state
 		open_GUI(game.players[event.player_index])
 	elseif checkbox.name == "ion-cannon-auto-target-enabled" then
-		global.goToFull[event.player_index] = false
-		global.permissions[-2] = checkbox.state
+		storage.goToFull[event.player_index] = false
+		storage.permissions[-2] = checkbox.state
 		open_GUI(game.players[event.player_index])
 	else
 		local index = tonumber(checkbox.name)
@@ -25,7 +25,7 @@ local on_gui_checked_state_changed = function(event)
 			Permissions.setPermission(index, checkbox.state)
 			if index == 0 then
 				Permissions.setAll(checkbox.state)
-				global.goToFull[event.player_index] = false
+				storage.goToFull[event.player_index] = false
 				open_GUI(game.players[event.player_index])
 			end
 		end
@@ -49,7 +49,7 @@ local on_gui_click = function(event)
 		return
 	elseif name == "add-ion-cannon" then
 		surfaceName = addIonCannon(force, player.surface)
-		global.IonCannonLaunched = true
+		storage.IonCannonLaunched = true
 		script.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
@@ -63,7 +63,7 @@ local on_gui_click = function(event)
 		addIonCannon(force, player.surface)
 		addIonCannon(force, player.surface)
 		addIonCannon(force, player.surface)
-		global.IonCannonLaunched = true
+		storage.IonCannonLaunched = true
 		script.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
@@ -147,7 +147,7 @@ local createAdminPanel =function(parent)
 
 	-- 2nd row
 	adminPanel.add{type = "label", caption = {"toggle-all"}}
-	adminPanel.add{type = "checkbox", state = global.permissions[0], name = "0"}
+	adminPanel.add{type = "checkbox", state = storage.permissions[0], name = "0"}
 	adminPanel.add{type = "label", caption = ""}
 
 	-- player rows
@@ -165,11 +165,11 @@ function open_GUI(player)
 	local force = player.force
 	local forceName = force.name
 	local player_index = player.index
-	if frame and global.goToFull[player_index] then
+	if frame and storage.goToFull[player_index] then
 		frame.destroy()
 	else
-		if global.goToFull[player_index] and #GetCannonTableFromForce(force) < 40 then
-			global.goToFull[player_index] = false
+		if storage.goToFull[player_index] and #GetCannonTableFromForce(force) < 40 then
+			storage.goToFull[player_index] = false
 			if frame then
 				frame.destroy()
 			end
@@ -185,7 +185,7 @@ function open_GUI(player)
 				end
 			end
 		else
-			global.goToFull[player_index] = true
+			storage.goToFull[player_index] = true
 			if frame then
 				frame.destroy()
 			end
@@ -194,7 +194,7 @@ function open_GUI(player)
 			if player.admin then
 				frame.add{type = "table", column_count = 2, name = "ion-cannon-admin-panel-header"}
 				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-admin-panel-show"}}
-				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = global.permissions[-1], name = "show"}
+				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-1], name = "show"}
 				-- frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-menu-show"}}
 				--TODO WTF? if global.permissions[-2] == nil then global.permissions[-2] = settings.global["ion-cannon-auto-targeting"].value end
 				-- frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = global.permissions[-2], name = "cheats"}
@@ -213,7 +213,7 @@ function open_GUI(player)
 					frame["ion-cannon-admin-panel-header"].add{type = "button", name = "recharge-ion-cannon", style = "ion-cannon-button-style"}
 				end
 				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"mod-setting-name.ion-cannon-auto-targeting"}}
-				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = global.permissions[-2], name = "ion-cannon-auto-target-enabled"}
+				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-2], name = "ion-cannon-auto-target-enabled"}
 			end
 			frame.add{type = "table", column_count = 1, name = "ion-cannon-table"}
 			frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannons-in-orbit", player.surface.name, #GetCannonTableFromForce(force)}}
@@ -237,7 +237,7 @@ function update_GUI(player)
 	local cannonTable = statsFrame["ion-cannon-table"]
 	if cannonTable then cannonTable.destroy() end
 
-	if not global.goToFull[playerIndex] then
+	if not storage.goToFull[playerIndex] then
 		--if false then --TODO configuration
 		--	cannonTable = createFullCannonTable(player)
 		--else

@@ -1,9 +1,9 @@
 local mod = require("mod")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 Version = require(mod.KuxCoreLibPath.."Version")
--- require("__stdlib__/stdlib/core")
-local Chunk = require("__stdlib__/stdlib/area/chunk")
-local Position = require("__stdlib__/stdlib/area/position")
+-- require("__Kux-CoreLib__/stdlib/core")
+local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
+local Position = require("__Kux-CoreLib__/stdlib/area/position")
 require "modules.autotargeter"
 require "modules.gui"
 require "modules.Permissions"
@@ -48,13 +48,13 @@ this.initialize = function()
 	fLog("initialize")
 	-- on_init, on_configuration_changed, on_force_created
 	generateEvents()
-	if not global.forces_ion_cannon_table then
-		global.forces_ion_cannon_table = {}
-		global.forces_ion_cannon_table["player"] = {}
+	if not storage.forces_ion_cannon_table then
+		storage.forces_ion_cannon_table = {}
+		storage.forces_ion_cannon_table["player"] = {}
 	else
 		--print("OrbitalIonCannon:OnInit")
 		-- MIGRATION: add 3rd column for "surface"
-		for fn,f in pairs(global.forces_ion_cannon_table) do
+		for fn,f in pairs(storage.forces_ion_cannon_table) do
 			--print("Update cannon force ''"..fn.."'' "..serpent.line(f))
 			for i,c in ipairs(f) do
 				--if not c[3] then --TODO bad argument #2 of 3 to 'index' (string expected, got number) ???
@@ -67,24 +67,24 @@ this.initialize = function()
 		end
 	end
 
-	global.goToFull = global.goToFull or {}
-	global.markers = global.markers or {}
+	storage.goToFull = storage.goToFull or {}
+	storage.markers = storage.markers or {}
 	--global.holding_targeter = global.holding_targeter or {} --MAV This doesn't do anything that makes sense, getting rid of it. If necessary can be replaced with isHolding()
-	global.klaxonTick = global.klaxonTick or 0
-	global.auto_tick = global.auto_tick or 0
-	global.readyTick = {}
+	storage.klaxonTick = storage.klaxonTick or 0
+	storage.auto_tick = storage.auto_tick or 0
+	storage.readyTick = {}
 --	if remote.interfaces["silo_script"] then
 --		local tracked_items = remote.call("silo_script", "get_tracked_items") --COMPATIBILITY 1.1 get_tracked_items removed
 --		if not tracked_items["orbital-ion-cannon"] then
 --			remote.call("silo_script", "add_tracked_item", "orbital-ion-cannon") --COMPATIBILITY 1.1 add_tracked_item removed
 --		end
 --	end
-	if not global.permissions then Permissions.initialize() end
+	if not storage.permissions then Permissions.initialize() end
 	for _, player in pairs(game.players) do
-		global.readyTick[player.index] = 0
-		global.forces_ion_cannon_table[player.force.name] = GetCannonTableFromForce(player.force) or {}
-		if global.goToFull[player.index] == nil then
-			global.goToFull[player.index] = true
+		storage.readyTick[player.index] = 0
+		storage.forces_ion_cannon_table[player.force.name] = GetCannonTableFromForce(player.force) or {}
+		if storage.goToFull[player.index] == nil then
+			storage.goToFull[player.index] = true
 		end
 		if player.gui.top["ion-cannon-button"] then
 			player.gui.top["ion-cannon-button"].destroy()
@@ -96,23 +96,23 @@ this.initialize = function()
 	for i, force in pairs(game.forces) do
 		force.reset_recipes()
 		if GetCannonTableFromForce(force) and #GetCannonTableFromForce(force) > 0 then
-			global.IonCannonLaunched = true
+			storage.IonCannonLaunched = true
 			script.on_nth_tick(60, process_60_ticks)
 		end
 	end
-	global.forces_ion_cannon_table["Queue"] = global.forces_ion_cannon_table["Queue"] or {}
+	storage.forces_ion_cannon_table["Queue"] = storage.forces_ion_cannon_table["Queue"] or {}
 end
 
 this.onLoad = function()
 	fLog("onLoad")
 	generateEvents()
-	if global.IonCannonLaunched then
+	if storage.IonCannonLaunched then
 		script.on_nth_tick(60, process_60_ticks)
 	end
 end
 
 script.on_event(defines.events.on_force_created, function(event)
-	if not global.forces_ion_cannon_table then
+	if not storage.forces_ion_cannon_table then
 		this.initialize()
 	end
 	NewCannonTableForForce(event.force)
@@ -120,7 +120,7 @@ end)
 
 script.on_event(defines.events.on_forces_merging, function(event)
 	fLog("on_forces_merging")
-	global.forces_ion_cannon_table[event.source.name] = nil
+	storage.forces_ion_cannon_table[event.source.name] = nil
 	-- for i, player in pairs(game.players) do
 		-- init_GUI(player)
 	-- end
@@ -138,7 +138,7 @@ end)]]
 
 script.on_event("ion-cannon-hotkey", function(event)
 	local player = game.players[event.player_index]
-	if global.IonCannonLaunched or player.admin then
+	if storage.IonCannonLaunched or player.admin then
 		open_GUI(player)
 	end
 end)
@@ -146,7 +146,7 @@ end)
 script.on_event(defines.events.on_player_created, function(event)
 	fLog("on_player_created")
 	init_GUI(game.players[event.player_index])
-	global.readyTick[event.player_index] = 0
+	storage.readyTick[event.player_index] = 0
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
@@ -158,7 +158,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
 			if Version.baseVersionGreaterOrEqual1d1() then
 				player.clear_cursor() --COMPATIBILITY 1.1
 			else
-				player.clean_cursor() --Factorio < 1.1
+				player["clean_cursor"]() --Factorio < 1.1
 			end
 			--global.holding_targeter[player.index] = false
 		elseif ((#GetCannonTableFromForce(player.force) > 0 and not isAllIonCannonOnCooldown(player))) --and not global.holding_targeter[player.index]
@@ -172,21 +172,21 @@ end)
 
 function process_60_ticks(NthTickEvent)
 	local current_tick = NthTickEvent.tick
-	for i = #global.markers, 1, -1 do -- Loop over table backwards because some entries get removed within the loop
-		local marker = global.markers[i]
+	for i = #storage.markers, 1, -1 do -- Loop over table backwards because some entries get removed within the loop
+		local marker = storage.markers[i]
 		if marker[2] <= current_tick then
 			if marker[1] and marker[1].valid then
 				marker[1].destroy()
 			end
-			table.remove(global.markers, i)
+			table.remove(storage.markers, i)
 		end
 	end
 	ReduceIonCannonCooldowns()
 	for i, force in pairs(game.forces) do
 		if GetCannonTableFromForce(force) and isIonCannonReady(force) then
 			for i, player in pairs(force.connected_players) do
-				if global.readyTick[player.index] < current_tick then
-					global.readyTick[player.index] = current_tick + settings.get_player_settings(player)["ion-cannon-ready-ticks"].value
+				if storage.readyTick[player.index] < current_tick then
+					storage.readyTick[player.index] = current_tick + settings.get_player_settings(player)["ion-cannon-ready-ticks"].value
 					playSoundForPlayer("ion-cannon-ready", player)
 				end
 			end
@@ -290,7 +290,7 @@ function addIonCannon(force, surface)
 		surfaceName = sn
 	end
 	table.insert(GetCannonTableFromForce(force), {settings.global["ion-cannon-cooldown-seconds"].value, 0, surfaceName})
-	global.IonCannonLaunched = true
+	storage.IonCannonLaunched = true
 	return surfaceName
 end
 
@@ -298,7 +298,7 @@ end
 --Returns the name of the surface the cannon was removed from.
 -- function removeIonCannon(force, surface)
 -- 	local surfaceName = surface.name
--- 	if GetCannonTableFromForce(force).size() 
+-- 	if GetCannonTableFromForce(force).size()
 -- end
 
 function targetIonCannon(force, position, surface, player)
@@ -332,13 +332,13 @@ function targetIonCannon(force, position, surface, player)
 		TargetPosition.y = TargetPosition.y + 1
 		local IonTarget = surface.create_entity({name = "ion-cannon-target", position = TargetPosition, force = game.forces.neutral})
 		local marker = force.add_chart_tag(surface, {icon = {type = "item", name = "ion-cannon-targeter"}, text = "Ion cannon #" .. cannonNum .. " target location (" .. targeterName .. ")", position = TargetPosition})
-		table.insert(global.markers, {marker, current_tick + settings.global["ion-cannon-chart-tag-duration"].value})
+		table.insert(storage.markers, {marker, current_tick + settings.global["ion-cannon-chart-tag-duration"].value})
 		local CrosshairsPosition = position
 		CrosshairsPosition.y = CrosshairsPosition.y - 20
 		surface.create_entity({name = "crosshairs", target = IonTarget, force = force, position = CrosshairsPosition, speed = 0})
 		for i, player in pairs(game.connected_players) do
-			if settings.get_player_settings(player)["ion-cannon-play-klaxon"].value and global.klaxonTick < current_tick then
-				global.klaxonTick = current_tick + 60
+			if settings.get_player_settings(player)["ion-cannon-play-klaxon"].value and storage.klaxonTick < current_tick then
+				storage.klaxonTick = current_tick + 60
 				player.play_sound({path = "ion-cannon-klaxon", volume_modifier = settings.get_player_settings(player)["ion-cannon-klaxon-volume"].value / 100})
 			end
 		end
@@ -367,10 +367,10 @@ end
 -- player_index :: uint (optional): The player that is riding the rocket, if any.
 script.on_event(defines.events.on_rocket_launched, function(event)
 	local force = event.rocket.force
-	
+
 	if event.rocket.get_item_count("orbital-ion-cannon") > 0 then
 		local surfaceName = addIonCannon(force, event.rocket_silo.surface)
-		
+
 		script.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
@@ -389,14 +389,14 @@ script.on_event(defines.events.on_rocket_launched, function(event)
 end)
 
 local c_on_pre_build = defines.events.on_pre_build --COMPATIBILITY 1.1 'on_put_item' renamed to 'on_pre_build'
-if not c_on_pre_build then c_on_pre_build = defines.events.on_put_item end
+if not c_on_pre_build then c_on_pre_build = (defines.events--[[@as any]]).on_put_item end
 
 script.on_event(c_on_pre_build, function(event)
 	local current_tick = event.tick
-	if global.tick and global.tick > current_tick then
+	if storage.tick and storage.tick > current_tick then
 		return
 	end
-	global.tick = current_tick + 10
+	storage.tick = current_tick + 10
 	local player = game.players[event.player_index]
 	if isHolding({name = "ion-cannon-targeter", count = 1}, player) and player.force.is_chunk_charted(player.surface, Chunk.from_position(event.position)) then
 		targetIonCannon(player.force, event.position, player.surface, player)
@@ -408,15 +408,17 @@ script.on_event(c_on_pre_build, function(event)
 end)
 
 script.on_event(defines.events.on_built_entity, function(event)
-	local entity = event.created_entity
+	local entity = event.entity
 	if entity.name == "ion-cannon-targeter" then
 		local player = game.players[event.player_index]
 		player.cursor_stack.set_stack({name = "ion-cannon-targeter", count = 1})
-		return entity.destroy()
+		entity.destroy()
+		return
 	end
 	if entity.name == "entity-ghost" then
 		if entity.ghost_name == "ion-cannon-targeter" then
-			return entity.destroy()
+			entity.destroy()
+			return
 		end
 	end
 end)
@@ -438,7 +440,7 @@ ModGui.initEvents()
 local allowed_items = {"ion-cannon-targeter"}
 
 local function give_shortcut_item(player, prototype_name)
-	if game.item_prototypes[prototype_name] then
+	if prototypes.item[prototype_name] then
 		local cc = false
 		if Version.baseVersionGreaterOrEqual1d1() then
 			cc = player.clear_cursor() --COMPATIBILITY 1.1
@@ -446,7 +448,7 @@ local function give_shortcut_item(player, prototype_name)
 			cc = player.clean_cursor() --Factorio < 1.1
 		end
 		--if remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player=player}) then
-			player.cursor_ghost = game.item_prototypes[prototype_name]
+			player.cursor_ghost = prototypes.item[prototype_name]
 		--else
 		--	player.cursor_stack.set_stack({name = prototype_name}) --Warining: this will allow the player to obtain infinite remotes
 		--	player.get_main_inventory().remove({name = prototype_name, count = 1})
@@ -457,7 +459,7 @@ end
 script.on_event(defines.events.on_lua_shortcut, function(event)
 	local prototype_name = event.prototype_name
 	local player = game.players[event.player_index]
-	if game.shortcut_prototypes[prototype_name] then
+	if prototypes.shortcut[prototype_name] then
 		for _, item_name in pairs(allowed_items) do
 			if item_name == prototype_name then
 				give_shortcut_item(player, prototype_name)

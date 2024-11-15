@@ -1,22 +1,23 @@
 {
 	"name": "Kux-OrbitalIonCannon",
-	"version": "3.5.0",
-	"factorio_version": "2.0",
-	"title": "Orbital Ion Cannon (Space Edition)",
+	"version": "2.4.1",
+	"factorio_version": "1.1",
+	"title": "Orbital Ion Cannon (SE Edition)",
 	"author": "kuxynator",
 	"homepage": "",
 	"dependencies": [
-		"base >= 2.0.7",
-		"Kux-CoreLib >= 3.14.0",
-			"(?) bobwarfare",
-			"(?) bobpower",
-			"(?) bobtech",
-			"(?) bobelectronics",
-
-			"(?) RampantArsenal",
-			"(?) space-exploration",
-			"(?) Krastorio2",
-			"(?) 5dim_compatibility",
+		"base",
+		"Kux-CoreLib >= 2.4.1",
+		"stdlib",
+		"? bobwarfare",
+		"? bobpower",
+		"? bobtech",
+		"? bobelectronics",
+		
+		"? RampantArsenal",
+		"? space-exploration",
+		"? Krastorio2",
+		"? 5dim_compatibility",
 
 		"! Orbital Ion Cannon"
 	],

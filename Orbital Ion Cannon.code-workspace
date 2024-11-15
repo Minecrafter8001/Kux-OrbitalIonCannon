@@ -2,7 +2,23 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../Kux-CoreLib"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"factorio.versions": [
+			{
+				"name": "2.0",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\2.0\\bin\\x64\\factorio.exe",
+				"active": true
+			}
+		],
+		"Lua.workspace.userThirdParty": [
+			"c:\\Users\\Kay\\AppData\\Roaming\\Code\\User\\workspaceStorage\\441da76fdc297431a3076a0bc62bc942\\justarandomgeek.factoriomod-debug\\sumneko-3rd"
+		],
+		"Lua.workspace.checkThirdParty": "ApplyInMemory",
+		"Lua.completion.requireSeparator": "/"
+	}
 }
