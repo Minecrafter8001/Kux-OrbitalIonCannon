@@ -2,6 +2,14 @@ local mod = require("mod")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 Version = require(mod.KuxCoreLibPath.."Version")
 -- require("__Kux-CoreLib__/stdlib/core")
+local Area = require("__Kux-CoreLib__/stdlib/area/area") -- WORAROUND required by Position
+local atest = package.loaded['__Kux-CoreLib__/stdlib/area/area.lua']
+if not atest then
+	for key, _ in pairs(package.loaded) do
+		print(key)
+	end
+	error('WARNING: Area for Position not found in package.loaded')
+end
 local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
 local Position = require("__Kux-CoreLib__/stdlib/area/position")
 require "modules.autotargeter"
@@ -353,11 +361,30 @@ function targetIonCannon(force, position, surface, player)
 					p.add_custom_alert(IonTarget, {type = "item", name = "orbital-ion-cannon"}, {"ion-cannon-target-location", cannonNum, TargetPosition.x, TargetPosition.y, targeterName}, true)
 				end
 			end
-			script.raise_event(_G.when_ion_cannon_targeted, {surface = surface, force = force, position = position, radius = settings.startup["ion-cannon-radius"].value, player_index = player.index,})		-- Passes event.surface, event.force, event.position, event.radius, and event.player_index
+			script.raise_event(_G.when_ion_cannon_targeted, {surfce = surface, force = force, position = position, radius = settings.startup["ion-cannon-radius"].value, player_index = player.index,})		-- Passes event.surface, event.force, event.position, event.radius, and event.player_index
 		else
 			script.raise_event(_G.when_ion_cannon_targeted, {surface = surface, force = force, position = position, radius = settings.startup["ion-cannon-radius"].value})		-- Passes event.surface, event.force, event.position, and event.radius
 		end
 		return cannonNum
+	end
+end
+
+local function install_ion_cannon(force, surface)
+	local surfaceName = addIonCannon(force, surface)
+
+	script.on_nth_tick(60, process_60_ticks)
+	for i, player in pairs(force.connected_players) do
+		init_GUI(player)
+		playSoundForPlayer("ion-cannon-charging", player)
+	end
+	if #GetCannonTableFromForce(force) == 1 then
+		force.print({"congratulations-first"})
+		force.print({"first-help"})
+		force.print({"second-help"})
+		force.print({"third-help"})
+	else
+		force.print({"congratulations-additional"})
+		force.print({"ion-cannons-in-orbit", surfaceName, countOrbitingIonCannons(force, surface)})
 	end
 end
 
@@ -366,25 +393,21 @@ end
 -- rocket_silo :: LuaEntity (optional)
 -- player_index :: uint (optional): The player that is riding the rocket, if any.
 script.on_event(defines.events.on_rocket_launched, function(event)
+	print("on_rocket_launched")
 	local force = event.rocket.force
 
-	if event.rocket.get_item_count("orbital-ion-cannon") > 0 then
-		local surfaceName = addIonCannon(force, event.rocket_silo.surface)
+	print("item_count: " .. tostring(event.rocket.get_item_count()))
+	print("item_count: " .. tostring(event.rocket.get_item_count()))
+	local inv=event.rocket.get_main_inventory()
+	if inv then
+		for i=1,inv.get_item_count() do
+			print("item["..tostring(i).."] = "..tostring(inv[i]))
+		end
+	end
 
-		script.on_nth_tick(60, process_60_ticks)
-		for i, player in pairs(force.connected_players) do
-			init_GUI(player)
-			playSoundForPlayer("ion-cannon-charging", player)
-		end
-		if #GetCannonTableFromForce(force) == 1 then
-			force.print({"congratulations-first"})
-			force.print({"first-help"})
-			force.print({"second-help"})
-			force.print({"third-help"})
-		else
-			force.print({"congratulations-additional"})
-			force.print({"ion-cannons-in-orbit", surfaceName, countOrbitingIonCannons(force, event.rocket_silo.surface)})
-		end
+	if event.rocket.get_item_count("orbital-ion-cannon") > 0 then
+		print("orbital-ion-cannon found in rocket")
+		install_ion_cannon(force, event.rocket_silo.surface)
 	end
 end)
 
@@ -463,6 +486,28 @@ script.on_event(defines.events.on_lua_shortcut, function(event)
 		for _, item_name in pairs(allowed_items) do
 			if item_name == prototype_name then
 				give_shortcut_item(player, prototype_name)
+			end
+		end
+	end
+end)
+
+script.on_event(defines.events.on_space_platform_built_entity, function (event)
+	--print("on_space_platform_built_entity "..event.entity.name)
+	--print(" space_location name "..tostring(event.platform.space_location.name))
+	--print(" get_item_count "..tostring(event.platform.hub.get_item_count()))
+
+	local inv = event.platform.hub.get_inventory(defines.inventory.hub_main)
+	if inv then
+		for i=1,inv.get_item_count() do
+			--print("item["..tostring(i).."] = "..tostring(inv[i]))
+			if inv[i].valid_for_read and inv[i].name=="orbital-ion-cannon" then
+				print("orbital-ion-cannon found in space platform")
+				local surface = game.surfaces[event.platform.space_location.name] --TODO.validate
+				if(surface) then
+					inv.remove({name="orbital-ion-cannon", count=1})
+					install_ion_cannon(event.platform.force, event.platform.space_location)
+				end
+				return
 			end
 		end
 	end

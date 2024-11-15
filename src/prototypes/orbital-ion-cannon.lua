@@ -6,7 +6,8 @@ data:extend({
 		icon_size = 64,
 		subgroup = "defensive-structure",
 		order = "e[orbital-ion-cannon]",
-		stack_size = 1
+		stack_size = 1,
+		weight = 1000000
 	},
 })
 
