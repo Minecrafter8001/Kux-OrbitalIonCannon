@@ -493,24 +493,14 @@ end)
 
 script.on_event(defines.events.on_space_platform_built_entity, function (event)
 	--print("on_space_platform_built_entity "..event.entity.name)
-	--print(" space_location name "..tostring(event.platform.space_location.name))
-	--print(" get_item_count "..tostring(event.platform.hub.get_item_count()))
 
 	local inv = event.platform.hub.get_inventory(defines.inventory.hub_main)
-	if inv then
-		for i=1,inv.get_item_count() do
-			--print("item["..tostring(i).."] = "..tostring(inv[i]))
-			if inv[i].valid_for_read and inv[i].name=="orbital-ion-cannon" then
-				print("orbital-ion-cannon found in space platform")
-				local surface = game.surfaces[event.platform.space_location.name] --TODO.validate
-				if(surface) then
-					inv.remove({name="orbital-ion-cannon", count=1})
-					install_ion_cannon(event.platform.force, event.platform.space_location)
-				end
-				return
-			end
-		end
-	end
+	if not inv then return end
+	if inv.get_item_count("orbital-ion-cannon") == 0 then return end
+	local surface = game.surfaces[event.platform.space_location.name] --TODO.validate
+	if not surface then return end
+	inv.remove({name="orbital-ion-cannon", count=1})
+	install_ion_cannon(event.platform.force, event.platform.space_location)
 end)
 
 script.on_init(this.initialize)
