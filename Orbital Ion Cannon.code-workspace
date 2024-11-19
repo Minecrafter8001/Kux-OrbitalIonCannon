@@ -10,8 +10,8 @@
 	"settings": {
 		"factorio.versions": [
 			{
-				"name": "2.0",
-				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\2.0\\bin\\x64\\factorio.exe",
+				"name": "Debug",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug\\bin\\x64\\factorio.exe",
 				"active": true
 			}
 		],

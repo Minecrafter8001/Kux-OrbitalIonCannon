@@ -330,22 +330,36 @@ data:extend({
 		}
 	}
 })
---TODO make bigger
-local yuge_crater = util.table.deepcopy(data.raw["corpse"]["small-scorchmark"])
 
+local yuge_crater = util.table.deepcopy(data.raw["corpse"]["big-scorchmark"])
 yuge_crater.name = "enormous-scorchmark"
 yuge_crater.order = "d[remnants]-b[scorchmark]-b[yuge]"
+--[[
 yuge_crater.animation = {
-	width = 110,
-	height = 90,
+	width = yuge_crater.ground_patch.sheet.width,
+	height = yuge_crater.ground_patch.sheet.height,
 	frame_count = 1,
 	direction_count = 1,
 	filename = "__base__/graphics/entity/scorchmark/big-scorchmark.png"
 }
-yuge_crater.animation.scale = settings.startup["ion-cannon-radius"].value --/ 4
-yuge_crater.ground_patch.sheet.scale = settings.startup["ion-cannon-radius"].value --/ 4
-yuge_crater.ground_patch_higher.sheet.scale = settings.startup["ion-cannon-radius"].value --/ 4
-,
+
+yuge_crater.animation.filename = "__Kux-OrbitalIonCannon__/graphics/yuge-scorchmark.png"
+yuge_crater.animation.width=yuge_crater.animation.width*4
+yuge_crater.animation.height=yuge_crater.animation.height*4
+]]
+
+yuge_crater.ground_patch.sheet.filename = "__Kux-OrbitalIonCannon__/graphics/yuge-scorchmark.png"
+yuge_crater.ground_patch.sheet.width=yuge_crater.ground_patch.sheet.width*4
+yuge_crater.ground_patch.sheet.height=yuge_crater.ground_patch.sheet.height*4
+
+yuge_crater.ground_patch_higher.sheet.filename = "__Kux-OrbitalIonCannon__/graphics/yuge-scorchmark-top.png"
+yuge_crater.ground_patch_higher.sheet.width=yuge_crater.ground_patch_higher.sheet.width*4
+yuge_crater.ground_patch_higher.sheet.height=yuge_crater.ground_patch_higher.sheet.height*4
+
+--yuge_crater.animation.scale = settings.startup["ion-cannon-radius"].value / 16
+yuge_crater.ground_patch.sheet.scale = settings.startup["ion-cannon-radius"].value / 16
+yuge_crater.ground_patch_higher.sheet.scale = settings.startup["ion-cannon-radius"].value / 16
+
 
 data:extend({yuge_crater})
 
