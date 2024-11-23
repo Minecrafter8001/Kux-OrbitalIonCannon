@@ -61,17 +61,17 @@ this.initialize = function()
 		storage.forces_ion_cannon_table["player"] = {}
 	else
 		--print("OrbitalIonCannon:OnInit")
-		-- MIGRATION: add 3rd column for "surface"
+		-- MIGRATION: add 3rd columnr "surface"
 		for fn,f in pairs(storage.forces_ion_cannon_table) do
+			if fn == "Queue" then goto next_force end
 			--print("Update cannon force ''"..fn.."'' "..serpent.line(f))
 			for i,c in ipairs(f) do
-				--if not c[3] then --TODO bad argument #2 of 3 to 'index' (string expected, got number) ???
-				--  c[3] = "nauvis" end
 				if #c==2 then
 					--"Update cannon #"..tostring(i).." surface to 'nauvis'")
 					table.insert(c, "nauvis")
 				end
 			end
+			::next_force::
 		end
 	end
 

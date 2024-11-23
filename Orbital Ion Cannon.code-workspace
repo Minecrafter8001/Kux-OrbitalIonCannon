@@ -11,7 +11,11 @@
 		"factorio.versions": [
 			{
 				"name": "Debug",
-				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug\\bin\\x64\\factorio.exe",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug\\bin\\x64\\factorio.exe"
+			},
+			{
+				"name": "Debug-X",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug-X\\bin\\x64\\factorio.exe",
 				"active": true
 			}
 		],
