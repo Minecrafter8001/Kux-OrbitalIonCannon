@@ -1,5 +1,5 @@
 local mod = require("mod")
-local Version = require(mod.KuxCoreLibPath.."Version")
+local Version = KuxCoreLib.Version
 
 local newBaseVersion = Version.baseVersionGreaterOrEqual1d1()
 
@@ -24,7 +24,7 @@ data:extend({
         style = "red",
         technology_to_unlock = "orbital-ion-cannon",
         icons = {{
-            icon = ModPath.."graphics/ion-cannon-targeter-x32-white.png",
+            icon = mod.path.."graphics/ion-cannon-targeter-x32-white.png",
             priority = "extra-high-no-scale",
             icon_size = 32,
             scale = 0.5,
@@ -32,7 +32,7 @@ data:extend({
         }},
         small_icons = {
 			{
-				icon = ModPath.."graphics/ion-cannon-targeter-x24-white.png",
+				icon = mod.path.."graphics/ion-cannon-targeter-x24-white.png",
 				priority = "extra-high-no-scale",
 				icon_size = 24,
 				scale = 1, -- 0.5,

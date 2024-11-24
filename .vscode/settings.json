@@ -10,5 +10,6 @@
 		"serpent",
 		"remote",
 		"iif"
-	]
+	],
+	"Lua.completion.requireSeparator": "/",
 }

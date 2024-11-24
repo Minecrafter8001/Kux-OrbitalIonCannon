@@ -2,7 +2,7 @@ data:extend{
 	{
 		type = "item",
 		name = "ion-cannon-targeter",
-		icon = ModPath.."graphics/crosshairs64.png",
+		icon = mod.path.."graphics/crosshairs64.png",
 		icon_size = 64,
 		place_result = "ion-cannon-targeter",
 		subgroup = "capsule",
@@ -38,7 +38,7 @@ local ion_cannon_targeter = util.table.deepcopy(data.raw["ammo-turret"]["gun-tur
 -- artillery-targeting-remote
 
 ion_cannon_targeter.name = "ion-cannon-targeter"
-ion_cannon_targeter.icon = ModPath.."graphics/crosshairs64.png"
+ion_cannon_targeter.icon = mod.path.."graphics/crosshairs64.png"
 ion_cannon_targeter.icon_size = 64
 ion_cannon_targeter.flags = {--[["placeable-off-grid",]] "not-on-map"} --"placeable-off-grid" prevents placement via the map. TODO: verify
 ion_cannon_targeter.collision_mask = {layers ={}}
@@ -69,7 +69,7 @@ ion_cannon_targeter.base_picture{
 	layers =
 	{
 		{
-			filename = ModPath.."graphics/crosshairs64.png",
+			filename = mod.path.."graphics/crosshairs64.png",
 			line_length = 1,
 			width = 64,
 			height = 64,
@@ -87,7 +87,7 @@ ion_cannon_targeter.graphics_set  = {
 				layers =
 				{
 					{
-						filename = ModPath.."graphics/crosshairs64.png",
+						filename = mod.path.."graphics/crosshairs64.png",
 						line_length = 1,
 						width = 64,
 						height = 64,

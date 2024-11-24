@@ -186,7 +186,7 @@ data:extend({
 		variations =
 		{
 			{
-				filename = ModPath.."sound/Klaxon.ogg",
+				filename = mod.path.."sound/Klaxon.ogg",
 				volume = 1.0
 			},
 		},
@@ -195,7 +195,7 @@ data:extend({
 	{
 		type = "simple-entity",
 		name = "ion-cannon-target",
-		icon = ModPath.."graphics/crosshairs64.png",
+		icon = mod.path.."graphics/crosshairs64.png",
 		icon_size = 64,
 		flags = {"placeable-off-grid", "not-on-map"},
 		max_health = 1,
@@ -207,7 +207,7 @@ data:extend({
 		animations =
 		{
 			{
-				filename = ModPath.."graphics/crosshairs_anim.png",
+				filename = mod.path.."graphics/crosshairs_anim.png",
 				priority = "low",
 				width = 64,
 				height = 64,
@@ -221,7 +221,7 @@ data:extend({
 		-- pictures =
 		-- {
 			-- {
-				-- filename = ModPath.."graphics/crosshairsEntity.png",
+				-- filename = mod.path.."graphics/crosshairsEntity.png",
 				-- priority = "low",
 				-- width = 64,
 				-- height = 64,
@@ -239,7 +239,7 @@ data:extend({
 		show_when_smoke_off = true,
 		animation =
 		{
-			filename = ModPath.."graphics/explosion.png",
+			filename = mod.path.."graphics/explosion.png",
 			priority = "low",
 			width = 192,
 			height = 192,
@@ -262,7 +262,7 @@ data:extend({
 		show_when_smoke_off = true,
 		animation =
 		{
-			filename = ModPath.."graphics/IonBeam.png",
+			filename = mod.path.."graphics/IonBeam.png",
 			priority = "low",
 			width = 110,
 			height = 1871,
@@ -302,7 +302,7 @@ data:extend({
 		sound =
 		{
 			{
-				filename = ModPath.."sound/OrbitalIonCannon.ogg",
+				filename = mod.path.."sound/OrbitalIonCannon.ogg",
 				volume = 1.4
 			},
 		},

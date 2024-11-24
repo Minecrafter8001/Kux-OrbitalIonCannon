@@ -1,95 +1,97 @@
+local isSpaceTravel = feature_flags["space_travel"]
 
-	local prerequision2level = 6
-	local prerequision2name= "laser-weapons-damage-"
+local prerequision2level = 6
+local prerequision2name= "laser-weapons-damage-"
 
-	if mods["space-exploration"] and settings.startup["ion-cannon-early-recipe"].value then prerequision2level = 2 end
-	if data.raw.technology["rampant-arsenal-technology-energy-weapons-damage-6"] then prerequision2name="rampant-arsenal-technology-energy-weapons-damage-" end
+if mods["space-exploration"] and settings.startup["ion-cannon-early-recipe"].value then prerequision2level = 2 end
+if data.raw.technology["rampant-arsenal-technology-energy-weapons-damage-6"] then prerequision2name="rampant-arsenal-technology-energy-weapons-damage-" end
 
-	local rocketSiloPrerequisite = "rocket-silo"
+local rocketSiloPrerequisite = "rocket-silo"
 
 
-	local ingredientsCannon =
+local ingredientsCannon =
+{
+	{"automation-science-pack", 1},
+	{"logistic-science-pack", 1},
+	{"chemical-science-pack", 1},
+	{"military-science-pack", 1}
+}
+
+--Add rocket science pack prerequisite and research cost for SE 0.6
+if data.raw["technology"]["se-rocket-science-pack"] then
+	rocketSiloPrerequisite = "se-rocket-science-pack"
+	table.insert(ingredientsCannon, {"se-rocket-science-pack", 1})
+end
+
+if not settings.startup["ion-cannon-early-recipe"].value then
+	table.insert(ingredientsCannon, {"utility-science-pack", 1})
+	table.insert(ingredientsCannon, {"production-science-pack", 1})
+	table.insert(ingredientsCannon, {"space-science-pack", 1})
+elseif not mods["space-exploration"] then
+	table.insert(ingredientsCannon, {"utility-science-pack", 1})
+	table.insert(ingredientsCannon, {"production-science-pack", 1})
+end
+
+local ingredientsTargeting =
+{
+	{"automation-science-pack", 1},
+	{"logistic-science-pack", 1},
+	{"chemical-science-pack", 1},
+	{"military-science-pack", 1},
+	{"space-science-pack", 1}
+}
+if not mods["space-exploration"] or not settings.startup["ion-cannon-early-recipe"].value then
+	table.insert(ingredientsTargeting, {"utility-science-pack", 1})
+	table.insert(ingredientsTargeting, {"production-science-pack", 1})
+end
+
+
+data:extend({
 	{
-		{"automation-science-pack", 1},
-		{"logistic-science-pack", 1},
-		{"chemical-science-pack", 1},
-		{"military-science-pack", 1}
-	}
-
-	--Add rocket science pack prerequisite and research cost for SE 0.6
-	if data.raw["technology"]["se-rocket-science-pack"] then
-		rocketSiloPrerequisite = "se-rocket-science-pack"
-		table.insert(ingredientsCannon, {"se-rocket-science-pack", 1})
-	end
-
-	if not settings.startup["ion-cannon-early-recipe"].value then
-		table.insert(ingredientsCannon, {"utility-science-pack", 1})
-		table.insert(ingredientsCannon, {"production-science-pack", 1})
-		table.insert(ingredientsCannon, {"space-science-pack", 1})
-	elseif not mods["space-exploration"] then
-		table.insert(ingredientsCannon, {"utility-science-pack", 1})
-		table.insert(ingredientsCannon, {"production-science-pack", 1})
-	end
-
-	local ingredientsTargeting =
+		type = "technology",
+		name = "orbital-ion-cannon",
+		localised_description = isSpaceTravel and {"technology-description.orbital-ion-cannon-space-travel"} or {"technology-description.orbital-ion-cannon"},
+		icon = mod.path.."graphics/icon64.png",
+		icon_size = 64,
+		prerequisites = {
+			rocketSiloPrerequisite,
+			prerequision2name..prerequision2level
+		},
+		effects =
+		{
+			{
+				type = "unlock-recipe",
+				recipe = mod.recipe.cannon
+			},
+			{
+				type = "unlock-recipe",
+				recipe = mod.recipe.targeter
+			}
+		},
+		unit =
+		{
+			count = 5000,
+			ingredients = ingredientsCannon,
+			time = 60
+		},
+		order = "k-a"
+	},
 	{
-		{"automation-science-pack", 1},
-		{"logistic-science-pack", 1},
-		{"chemical-science-pack", 1},
-		{"military-science-pack", 1},
-		{"space-science-pack", 1}
-	}
-	if not mods["space-exploration"] or not settings.startup["ion-cannon-early-recipe"].value then
-		table.insert(ingredientsTargeting, {"utility-science-pack", 1})
-		table.insert(ingredientsTargeting, {"production-science-pack", 1})
-	end
-
-
-	data:extend({
+		type = "technology",
+		name = "auto-targeting",
+		icon = mod.path.."graphics/AutoTargetingTech.png",
+		icon_size = 64,
+		prerequisites = {"orbital-ion-cannon"},
+		effects = {},
+		unit =
 		{
-			type = "technology",
-			name = "orbital-ion-cannon",
-			icon = ModPath.."graphics/icon64.png",
-			icon_size = 64,
-			prerequisites = {
-				rocketSiloPrerequisite,
-				prerequision2name..prerequision2level
-			},
-			effects =
-			{
-				{
-					type = "unlock-recipe",
-					recipe = "orbital-ion-cannon"
-				},
-				{
-					type = "unlock-recipe",
-					recipe = "ion-cannon-targeter"
-				}
-			},
-			unit =
-			{
-				count = 5000,
-				ingredients = ingredientsCannon,
-				time = 60
-			},
-			order = "k-a"
+			count = 4000,
+			ingredients = ingredientsTargeting,
+			time = 60
 		},
-		{
-			type = "technology",
-			name = "auto-targeting",
-			icon = ModPath.."graphics/AutoTargetingTech.png",
-			icon_size = 64,
-			prerequisites = {"orbital-ion-cannon"},
-			effects = {},
-			unit =
-			{
-				count = 4000,
-				ingredients = ingredientsTargeting,
-				time = 60
-			},
-			order = "k-b"
-		},
-	})
+		order = "k-b"
+	},
+})
 
 --[[ --TODO implement this
 if settings.startup["ion-cannon-bob-updates"].value then

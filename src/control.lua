@@ -1,21 +1,16 @@
-local mod = require("mod")
+require("mod")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
-Version = require(mod.KuxCoreLibPath.."Version")
+local Version = KuxCoreLib.Version.asGlobal()
+local Events = KuxCoreLib.Events
 -- require("__Kux-CoreLib__/stdlib/core")
-local Area = require("__Kux-CoreLib__/stdlib/area/area") -- WORAROUND required by Position
-local atest = package.loaded['__Kux-CoreLib__/stdlib/area/area.lua']
-if not atest then
-	for key, _ in pairs(package.loaded) do
-		print(key)
-	end
-	error('WARNING: Area for Position not found in package.loaded')
-end
+local Area = require("__Kux-CoreLib__/stdlib/area/area") -- preload required by Position
 local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
 local Position = require("__Kux-CoreLib__/stdlib/area/position")
-require "modules.autotargeter"
-require "modules.gui"
-require "modules.Permissions"
-require "modules.ion-cannon-table"
+require "modules/autotargeter"
+require "modules/gui"
+require "modules/Permissions"
+require "modules/ion-cannon-table"
+---------------------------------------------------------------------------------------------------
 
 local fLog = function (functionName)
 	print("control."..functionName)
@@ -491,18 +486,28 @@ script.on_event(defines.events.on_lua_shortcut, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_space_platform_built_entity, function (event)
-	--print("on_space_platform_built_entity "..event.entity.name)
 
-	local inv = event.platform.hub.get_inventory(defines.inventory.hub_main)
+---@param e {entity: LuaEntity?, platform: LuaSpacePlatform?}
+function on_built(e)
+	--print("on_space_platform_built_entity "..e.entity.name)
+
+	--[[ temorary solutuion: plkace a radar
+	local inv = e.platform.hub.get_inventory(defines.inventory.hub_main)
 	if not inv then return end
 	if inv.get_item_count("orbital-ion-cannon") == 0 then return end
-	local surface = game.surfaces[event.platform.space_location.name] --TODO.validate
+	local surface = game.surfaces[e.platform.space_location.name] --TODO.validate
 	if not surface then return end
 	inv.remove({name="orbital-ion-cannon", count=1})
-	install_ion_cannon(event.platform.force, event.platform.space_location)
-end)
+	]]
 
-script.on_init(this.initialize)
-script.on_configuration_changed(this.initialize)
-script.on_load(this.onLoad)
+	if e.entity.name ~= "orbital-ion-cannon" then return end
+	if not e.platform then e.platform = e.entity.surface.platform end
+	if not e.platform then return end
+	install_ion_cannon(e.platform.force, e.platform.space_location)
+end
+
+Events.on_built(on_built)
+
+Events.on_init(this.initialize)
+Events.on_load(this.onLoad)
+Events.on_configuration_changed(this.initialize)

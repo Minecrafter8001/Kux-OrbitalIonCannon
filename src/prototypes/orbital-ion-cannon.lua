@@ -1,13 +1,46 @@
+local EntityData = KuxCoreLib.EntityData
+local util = require("util")
+local entity = EntityData.clone("radar", "radar", "orbital-ion-cannon") --[[@as data.RadarPrototype]]
+
+local isSpaceTravel = feature_flags["space_travel"]
+
+entity.rotation_speed = 0
+entity.energy_per_sector = "1MJ"
+entity.energy_per_nearby_scan = "1MJ"
+entity.energy_usage = "50kW"
+entity.max_distance_of_sector_revealed = 0
+entity.max_distance_of_nearby_sector_revealed = 0
+entity.minable = {mining_time = 0.1, result = "radar"}
+entity.fast_replaceable_group = nil
+if settings.startup["ion-cannon-1x1-controler"].value ==true then
+	entity.collision_box = {{-0.45, -0.45}, {0.45, 0.45}}
+	entity.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+	entity.hit_visualization_box = {{-0.5, -0.5}, {0.5, 0.5}}
+	entity.integration_patch.scale = entity.integration_patch.scale / 3
+	entity.integration_patch.shift = util.by_pixel(0, -5)
+	entity.pictures.layers[1].scale = entity.pictures.layers[1].scale / 3
+	entity.pictures.layers[1].shift = util.by_pixel(0, -5)
+	entity.pictures.layers[2].scale = entity.pictures.layers[2].scale / 3
+	entity.pictures.layers[2].shift = util.by_pixel(14, 2)
+end
+entity.connects_to_other_radars = false
+entity.working_sound = nil
+
+data:extend{entity}
+
 data:extend({
 	{
 		type = "item",
 		name = "orbital-ion-cannon",
-		icon = ModPath.."graphics/icon64.png",
+		localised_name = isSpaceTravel and {"item-name.orbital-ion-cannon-space-travel"} or {"item-name.orbital-ion-cannon"},
+		localised_description = isSpaceTravel and {"item-description.orbital-ion-cannon-space-travel"} or {"item-description.orbital-ion-cannon"},
+		icon = mod.path.."graphics/icon64.png",
 		icon_size = 64,
 		subgroup = "defensive-structure",
 		order = "e[orbital-ion-cannon]",
 		stack_size = 1,
-		weight = 1000000
+		weight = 1000000,
+		place_result = entity.name,
 	},
 })
 
@@ -15,7 +48,10 @@ data:extend({
 	{
 		type = "recipe",
 		name = "orbital-ion-cannon",
+		localised_name = isSpaceTravel and {"recipe-name.orbital-ion-cannon-space-travel"} or {"recipe-name.orbital-ion-cannon"},
+		localised_description = isSpaceTravel and {"recipe-description.orbital-ion-cannon-space-travel"} or {"recipe-description.orbital-ion-cannon"},
 		energy_required = 60,
+		enabled = false,
 		ingredients = {
 			{ type = "item", name = "low-density-structure", amount = 100 },
 			{ type = "item", name = "solar-panel", amount = 100 },
@@ -29,7 +65,6 @@ data:extend({
 		results = {
 			{ type = "item", name = "orbital-ion-cannon", amount = 1 }
 		}
-
 	},
 })
 

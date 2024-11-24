@@ -1,8 +1,9 @@
-require "modules.tools"
 local Area =  require("__Kux-CoreLib__/stdlib/area/area") -- required for Chunk
 local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
-require "modules.ion-cannon-table"
-
+local Events = KuxCoreLib.Events
+require "modules/tools"
+require "modules/ion-cannon-table"
+---------------------------------------------------------------------------------------------------
 --local turretBlacklist = {"ion-cannon-targeter", "kr-tesla-coil-turret"}
 
 function findNestNear(entity, chunk_position)
@@ -59,11 +60,9 @@ end
 -- radar :: LuaEntity: The radar that did the scanning.
 -- chunk_position :: ChunkPosition: The chunk scanned.
 -- area :: BoundingBox: Area of the scanned chunk.
-script.on_event(defines.events.on_sector_scanned, function(event)
+Events.on_event(defines.events.on_sector_scanned, function(event)
 	--print("on_sector_scanned",serpent.line(event.chunk_position), serpent.line(event.area))
-	if #GetCannonTable("Queue") > 0 then
-		processQueue();
-	end
+	if #GetCannonTable("Queue") > 0 then processQueue(); end
 
 	--local p = false; if global.permissions[-2] then p = true end
 	--local t = event.radar.force.technologies["auto-targeting"].researched
@@ -85,7 +84,7 @@ end)
 --- Called when a biter migration builds a base.
 -- entity :: LuaEntity: The built entity.
 -- Note: This will be called multiple times as each biter in a given migration is sacrificed and builds part of the base.
-script.on_event(defines.events.on_biter_base_built, function(e)
+Events.on_event(defines.events.on_biter_base_built, function(e)
 	--print("on_biter_base_built", serpent.line(e.entity.position))
 	if not settings.global["ion-cannon-auto-target-visible"].value then return end
 	-- Auto-Target New Nests in Visible Regions

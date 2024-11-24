@@ -1,6 +1,5 @@
-require "modules.tools"
-require "modules.luaext"
-require "modules.ion-cannon-table"
+require "modules/tools"
+require "modules/ion-cannon-table"
 local mod_gui = require("mod-gui")
 
 UiElementDefinitions = {

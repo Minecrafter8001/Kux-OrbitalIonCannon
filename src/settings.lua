@@ -1,3 +1,6 @@
+require("mod")
+local extend = KuxCoreLib. PrototypeData.extend
+
 data:extend({
 	-- Startup
 	{
@@ -53,6 +56,13 @@ data:extend({
 		name = "ion-cannon-early-recipe",
 		setting_type = "startup",
 		order = "g",
+		default_value = false
+	},
+	{
+		type = "bool-setting",
+		name = "ion-cannon-1x1-controler",
+		setting_type = "startup",
+		order = "h",
 		default_value = false
 	},
 	-- Runtime (global)
@@ -163,5 +173,5 @@ data:extend({
 		setting_type = "runtime-per-user",
 		order = "e",
 		default_value = true
-	}	
+	}
 })

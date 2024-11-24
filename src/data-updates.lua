@@ -1,4 +1,4 @@
-LoadState="data-updates"
+require("mod")
 
 -- if data.raw["tool"]["science-pack-4"] and settings.startup["ion-cannon-bob-updates"].value then
 	-- data.raw["technology"]["orbital-ion-cannon"].unit.ingredients[5] = {"science-pack-4", 2}
