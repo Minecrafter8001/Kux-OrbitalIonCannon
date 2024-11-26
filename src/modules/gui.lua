@@ -1,3 +1,4 @@
+local Events = KuxCoreLib.Events
 require "modules/tools"
 require "modules/ion-cannon-table"
 local mod_gui = require("mod-gui")
@@ -49,7 +50,7 @@ local on_gui_click = function(event)
 	elseif name == "add-ion-cannon" then
 		surfaceName = addIonCannon(force, player.surface)
 		storage.IonCannonLaunched = true
-		script.on_nth_tick(60, process_60_ticks)
+		Events.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
@@ -63,7 +64,7 @@ local on_gui_click = function(event)
 		addIonCannon(force, player.surface)
 		addIonCannon(force, player.surface)
 		storage.IonCannonLaunched = true
-		script.on_nth_tick(60, process_60_ticks)
+		Events.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
@@ -87,8 +88,8 @@ local on_gui_click = function(event)
 end
 
 ModGui.initEvents = function ()
-	script.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
-	script.on_event(defines.events.on_gui_click, on_gui_click)
+	Events.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
+	Events.on_event(defines.events.on_gui_click, on_gui_click)
 end
 
 function getUiElement(parent, name, createIfNotExist)

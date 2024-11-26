@@ -1,3 +1,5 @@
+local extend = KuxCoreLib.PrototypeData.extend
+
 local isSpaceTravel = feature_flags["space_travel"]
 
 local prerequision2level = 6
@@ -45,53 +47,42 @@ if not mods["space-exploration"] or not settings.startup["ion-cannon-early-recip
 	table.insert(ingredientsTargeting, {"production-science-pack", 1})
 end
 
-
-data:extend({
-	{
-		type = "technology",
-		name = "orbital-ion-cannon",
-		localised_description = isSpaceTravel and {"technology-description.orbital-ion-cannon-space-travel"} or {"technology-description.orbital-ion-cannon"},
-		icon = mod.path.."graphics/icon64.png",
-		icon_size = 64,
-		prerequisites = {
-			rocketSiloPrerequisite,
-			prerequision2name..prerequision2level
-		},
-		effects =
-		{
-			{
-				type = "unlock-recipe",
-				recipe = mod.recipe.cannon
-			},
-			{
-				type = "unlock-recipe",
-				recipe = mod.recipe.targeter
-			}
-		},
-		unit =
-		{
-			count = 5000,
-			ingredients = ingredientsCannon,
-			time = 60
-		},
-		order = "k-a"
+local x = extend{prefix="", order = "k-"}
+x:technology{ mod.tech.cannon,
+	localised_description = isSpaceTravel and {"technology-description.orbital-ion-cannon-space-travel"} or {"technology-description.orbital-ion-cannon"},
+	icon = mod.path.."graphics/icon64.png",
+	icon_size = 64,
+	prerequisites = {
+		rocketSiloPrerequisite,
+		prerequision2name..prerequision2level
 	},
-	{
-		type = "technology",
-		name = "auto-targeting",
-		icon = mod.path.."graphics/AutoTargetingTech.png",
-		icon_size = 64,
-		prerequisites = {"orbital-ion-cannon"},
-		effects = {},
-		unit =
-		{
-			count = 4000,
-			ingredients = ingredientsTargeting,
-			time = 60
-		},
-		order = "k-b"
+	effects = {
+		{type = "unlock-recipe",recipe = mod.recipe.cannon},
+		--[[{type = "unlock-recipe",recipe = mod.recipe.targeter}]]
 	},
-})
+	unit = { count = 5000, ingredients = ingredientsCannon, time = 60 }
+}
+x:technology{mod.tech.area_fire,
+	icon = mod.path.."graphics/tech-area-fire.png",
+	icon_size = 256,
+	prerequisites = {mod.tech.cannon},
+	effects ={},
+	unit = { count = 1000, ingredients = ingredientsCannon, time = 60 },
+}
+x:technology{ mod.tech.auto_targeting,
+	icon = mod.path.."graphics/AutoTargetingTech.png",
+	icon_size = 64,
+	prerequisites = {mod.tech.area_fire},
+	effects = {},
+	unit ={ count = 3000, ingredients = ingredientsTargeting, time = 60 }
+}
+x:technology{ mod.tech.cannon_mk2,
+	icon = mod.path.."graphics/tech-mk2.png",
+	icon_size = 256,
+	prerequisites = {mod.tech.auto_targeting},
+	effects = {{type = "unlock-recipe",recipe = mod.recipe.cannon_mk2}},
+	unit ={ count = 5000, ingredients = ingredientsTargeting, time = 60 }
+}
 
 --[[ --TODO implement this
 if settings.startup["ion-cannon-bob-updates"].value then

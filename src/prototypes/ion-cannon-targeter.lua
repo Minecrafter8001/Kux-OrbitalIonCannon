@@ -12,6 +12,7 @@ data:extend{
 	}--[[@as data.ItemPrototype]]
 }
 
+
 data:extend({
 	{
 		type = "recipe",
@@ -42,6 +43,8 @@ ion_cannon_targeter.icon = mod.path.."graphics/crosshairs64.png"
 ion_cannon_targeter.icon_size = 64
 ion_cannon_targeter.flags = {--[["placeable-off-grid",]] "not-on-map"} --"placeable-off-grid" prevents placement via the map. TODO: verify
 ion_cannon_targeter.collision_mask = {layers ={}}
+ion_cannon_targeter.is_military_target = false
+ion_cannon_targeter.fast_replaceable_group=nil
 ion_cannon_targeter.max_health = 1
 ion_cannon_targeter.inventory_size = 0
 ion_cannon_targeter.collision_box = {{0, 0}, {0, 0}}
@@ -79,7 +82,7 @@ ion_cannon_targeter.base_picture{
 			shift = {0, 0}
 		}
 	}
-}]]
+}--]]
 ion_cannon_targeter.graphics_set  = {
 	base_visualisation = {
 		animation = {
@@ -101,8 +104,18 @@ ion_cannon_targeter.graphics_set  = {
 		}
 	}
 }
-
-
+ion_cannon_targeter.water_reflection=nil
+ion_cannon_targeter.preparing_animation = nil
+ion_cannon_targeter.prepared_animation = nil
+ion_cannon_targeter.preparing_sound = nil
+ion_cannon_targeter.attacking_animation = nil
+ion_cannon_targeter.corpse = nil
+ion_cannon_targeter.damaged_trigger_effect=nil
+ion_cannon_targeter.folding_sound=nil
+--ion_cannon_targeter.folded_animation=nil required
+ion_cannon_targeter.circuit_connector=nil
+ion_cannon_targeter.minable = nil
+ion_cannon_targeter.automated_ammo_count=0
 ion_cannon_targeter.attack_parameters =
 {
 	type = "projectile",
@@ -110,7 +123,7 @@ ion_cannon_targeter.attack_parameters =
 	cooldown = 1,
 	projectile_center = {0, 0},
 	projectile_creation_distance = 1.4,
-	range = settings.startup["ion-cannon-radius"].value,
+	range = settings.startup["ion-cannon-radius"].value --[[@as number]],
 	damage_modifier = 1,
 	ammo_type =
 	{
@@ -135,3 +148,30 @@ ion_cannon_targeter.attack_parameters =
 }
 
 data:extend({ion_cannon_targeter})
+
+--- DRAFT -----------------------------------------------------------------------------------------
+
+data:extend{
+	{
+		type = "selection-tool",
+		name = "orbital-ion-cannon-area-targeter",
+		icon = mod.path.."graphics/crosshairs64.png",
+		icon_size = 64,
+		subgroup = "capsule",
+		order = "a[tool]-b[custom-tool]",
+		skip_fog_of_war = true,
+		flags = {"not-stackable", "only-in-cursor","spawnable"},
+		stack_size = 1,
+		mouse_cursor = nil,
+		select={
+			border_color = {r = 1, g = 0, b = 0},
+			mode = {"enemy"},
+			cursor_box_type = "not-allowed",
+		},
+		alt_select = {
+			border_color = {r = 1, g = 0, b = 0},
+			mode = {"enemy"},
+			cursor_box_type = "not-allowed"
+		},
+	}
+}

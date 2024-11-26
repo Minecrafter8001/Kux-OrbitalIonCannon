@@ -1,9 +1,10 @@
 local EntityData = KuxCoreLib.EntityData
 local util = require("util")
-local entity = EntityData.clone("radar", "radar", "orbital-ion-cannon") --[[@as data.RadarPrototype]]
+
 
 local isSpaceTravel = feature_flags["space_travel"]
 
+local entity = EntityData.clone("radar", "radar", "orbital-ion-cannon") --[[@as data.RadarPrototype]]
 entity.rotation_speed = 0
 entity.energy_per_sector = "1MJ"
 entity.energy_per_nearby_scan = "1MJ"
@@ -68,6 +69,7 @@ data:extend({
 	},
 })
 
+--[[
 --TODO update to not use array indices
 if data.raw["item"]["advanced-processing-unit"] and settings.startup["ion-cannon-bob-updates"].value then
 	data.raw["recipe"]["orbital-ion-cannon"].ingredients[5] = {type = "item", name = "advanced-processing-unit", amount=200}
@@ -81,3 +83,49 @@ if data.raw["item"]["fast-accumulator-3"] and data.raw["item"]["solar-panel-larg
 	data.raw["recipe"]["orbital-ion-cannon"].ingredients[2] = {type = "item", name = "solar-panel-large-3", amount=100}
 	data.raw["recipe"]["orbital-ion-cannon"].ingredients[3] = {type = "item", name = "fast-accumulator-3", amount=200}
 end
+]]
+
+local entity = EntityData.clone("radar", "orbital-ion-cannon", "orbital-ion-cannon-mk2") --[[@as data.RadarPrototype]]
+data:extend{entity}
+
+data:extend({
+	{
+		type = "item",
+		name = "orbital-ion-cannon-mk2",
+		localised_name = isSpaceTravel and {"item-name.orbital-ion-cannon-mk2-space-travel"} or {"item-name.orbital-ion-cannon-mk2"},
+		localised_description = isSpaceTravel and {"item-description.orbital-ion-cannon-mk2-space-travel"} or {"item-description.orbital-ion-cannon-mk2"},
+		icon = mod.path.."graphics/tech-mk2.png",
+		icon_size = 256,
+		subgroup = "defensive-structure",
+		order = "e[orbital-ion-cannon]",
+		stack_size = 1,
+		weight = 5000000, --must be build on space platform
+		place_result = entity.name,
+	},
+})
+
+--TODO ingredients Vanilla
+--TODO ingredients Space-Age
+data:extend({
+	{
+		type = "recipe",
+		name = "orbital-ion-cannon-mk2",
+		localised_name = isSpaceTravel and {"recipe-name.orbital-ion-cannon-mk2-space-travel"} or {"recipe-name.orbital-ion-cannon-mk2"},
+		localised_description = isSpaceTravel and {"recipe-description.orbital-ion-cannon-mk2-space-travel"} or {"recipe-description.orbital-ion-cannon-mk2"},
+		energy_required = 60,
+		enabled = false,
+		ingredients = {
+			{ type = "item", name = "low-density-structure", amount = 100 },
+			{ type = "item", name = "solar-panel", amount = 100 },
+			{ type = "item", name = "accumulator", amount = 200 },
+			{ type = "item", name = "radar", amount = 10 },
+			{ type = "item", name = "processing-unit", amount = 200 },
+			{ type = "item", name = "electric-engine-unit", amount = 25 },
+			{ type = "item", name = "laser-turret", amount = 50 },
+			{ type = "item", name = "rocket-fuel", amount = 50 }
+		},
+		results = {
+			{ type = "item", name = "orbital-ion-cannon-mk2", amount = 1 }
+		}
+	},
+})

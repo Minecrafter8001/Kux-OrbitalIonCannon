@@ -9,7 +9,8 @@
 		"mods",
 		"serpent",
 		"remote",
-		"iif"
+		"iif",
+		"feature_flags"
 	],
 	"Lua.completion.requireSeparator": "/",
 }

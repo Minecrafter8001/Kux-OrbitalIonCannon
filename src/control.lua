@@ -100,7 +100,7 @@ this.initialize = function()
 		force.reset_recipes()
 		if GetCannonTableFromForce(force) and #GetCannonTableFromForce(force) > 0 then
 			storage.IonCannonLaunched = true
-			script.on_nth_tick(60, process_60_ticks)
+			Events.on_nth_tick(60, process_60_ticks)
 		end
 	end
 	storage.forces_ion_cannon_table["Queue"] = storage.forces_ion_cannon_table["Queue"] or {}
@@ -110,18 +110,18 @@ this.onLoad = function()
 	fLog("onLoad")
 	generateEvents()
 	if storage.IonCannonLaunched then
-		script.on_nth_tick(60, process_60_ticks)
+		Events.on_nth_tick(60, process_60_ticks)
 	end
 end
 
-script.on_event(defines.events.on_force_created, function(event)
+Events.on_event(defines.events.on_force_created, function(event)
 	if not storage.forces_ion_cannon_table then
 		this.initialize()
 	end
 	NewCannonTableForForce(event.force)
 end)
 
-script.on_event(defines.events.on_forces_merging, function(event)
+Events.on_event(defines.events.on_forces_merging, function(event)
 	fLog("on_forces_merging")
 	storage.forces_ion_cannon_table[event.source.name] = nil
 	-- for i, player in pairs(game.players) do
@@ -130,7 +130,7 @@ script.on_event(defines.events.on_forces_merging, function(event)
 end)
 
 --why we should open the GUI always? KUX MODIFICATION
---[[script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+--[[Events.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	if event.player_index then
 		local player = game.players[event.player_index]
 		if global.IonCannonLaunched or player.cheat_mode or player.admin then
@@ -139,20 +139,20 @@ end)
 	end
 end)]]
 
-script.on_event("ion-cannon-hotkey", function(event)
+Events.on_event("ion-cannon-hotkey", function(event)
 	local player = game.players[event.player_index]
 	if storage.IonCannonLaunched or player.admin then
 		open_GUI(player)
 	end
 end)
 
-script.on_event(defines.events.on_player_created, function(event)
+Events.on_event(defines.events.on_player_created, function(event)
 	fLog("on_player_created")
 	init_GUI(game.players[event.player_index])
 	storage.readyTick[event.player_index] = 0
 end)
 
-script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
+Events.on_event(defines.events.on_player_cursor_stack_changed, function(event)
 	local player = game.players[event.player_index]
 	if isHolding({name = "ion-cannon-targeter", count = 1}, player) then
 		if player.character and not Permissions.hasPermission(player.index) then
@@ -320,7 +320,7 @@ function targetIonCannon(force, position, surface, player)
 		--TODO: Add alternate cheat cannon firing, and/or add a cooldown reset button to the cheat menu
 		--[[if player.cheat_mode == true then
 			cannonNum = "Cheat"
-			script.on_nth_tick(60, process_60_ticks)
+			Events.on_nth_tick(60, process_60_ticks)
 		end]]
 	end
 	if cannonNum == 0 then
@@ -367,7 +367,7 @@ end
 local function install_ion_cannon(force, surface)
 	local surfaceName = addIonCannon(force, surface)
 
-	script.on_nth_tick(60, process_60_ticks)
+	Events.on_nth_tick(60, process_60_ticks)
 	for i, player in pairs(force.connected_players) do
 		init_GUI(player)
 		playSoundForPlayer("ion-cannon-charging", player)
@@ -387,7 +387,7 @@ end
 -- rocket :: LuaEntity
 -- rocket_silo :: LuaEntity (optional)
 -- player_index :: uint (optional): The player that is riding the rocket, if any.
-script.on_event(defines.events.on_rocket_launched, function(event)
+Events.on_event(defines.events.on_rocket_launched, function(event)
 	print("on_rocket_launched")
 	local force = event.rocket.force
 
@@ -409,7 +409,7 @@ end)
 local c_on_pre_build = defines.events.on_pre_build --COMPATIBILITY 1.1 'on_put_item' renamed to 'on_pre_build'
 if not c_on_pre_build then c_on_pre_build = (defines.events--[[@as any]]).on_put_item end
 
-script.on_event(c_on_pre_build, function(event)
+Events.on_event(c_on_pre_build, function(event)
 	local current_tick = event.tick
 	if storage.tick and storage.tick > current_tick then
 		return
@@ -425,7 +425,7 @@ script.on_event(c_on_pre_build, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_built_entity, function(event)
+Events.on_event(defines.events.on_built_entity, function(event)
 	local entity = event.entity
 	if entity.name == "ion-cannon-targeter" then
 		local player = game.players[event.player_index]
@@ -441,7 +441,7 @@ script.on_event(defines.events.on_built_entity, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_trigger_created_entity, function(event)
+Events.on_event(defines.events.on_trigger_created_entity, function(event)
 	local created_entity = event.entity
 	if created_entity.name == "ion-cannon-explosion" then
 		script.raise_event(when_ion_cannon_fired, {surface = created_entity.surface, position = created_entity.position, radius = settings.startup["ion-cannon-radius"].value})		-- Passes event.surface, event.position, and event.radius
@@ -455,7 +455,7 @@ end)
 
 ModGui.initEvents()
 
-local allowed_items = {"ion-cannon-targeter"}
+local allowed_items = {"ion-cannon-targeter", "orbital-ion-cannon-area-targeter"}
 
 local function give_shortcut_item(player, prototype_name)
 	if prototypes.item[prototype_name] then
@@ -474,7 +474,7 @@ local function give_shortcut_item(player, prototype_name)
 	end
 end
 
-script.on_event(defines.events.on_lua_shortcut, function(event)
+Events.on_event(defines.events.on_lua_shortcut, function(event)
 	local prototype_name = event.prototype_name
 	local player = game.players[event.player_index]
 	if prototypes.shortcut[prototype_name] then
@@ -489,9 +489,10 @@ end)
 
 ---@param e {entity: LuaEntity?, platform: LuaSpacePlatform?}
 function on_built(e)
+	if not e.entity or not e.entity.valid then return end
 	--print("on_space_platform_built_entity "..e.entity.name)
 
-	--[[ temorary solutuion: plkace a radar
+	--[[ temorary solutuion: place a radar
 	local inv = e.platform.hub.get_inventory(defines.inventory.hub_main)
 	if not inv then return end
 	if inv.get_item_count("orbital-ion-cannon") == 0 then return end
@@ -507,6 +508,83 @@ function on_built(e)
 end
 
 Events.on_built(on_built)
+
+Events.on_event(defines.events.on_player_selected_area, function(event)
+	if not event.item == "orbital-ion-cannon-area-targeter" then return end
+	local player = game.players[event.player_index]
+	local radius = settings.startup["ion-cannon-radius"].value --[[@as number]] -- Radius eines Kreises
+	local surface = player.surface
+	local force = player.force
+	local positions = {}
+
+	-- Bereichsgrenzen
+	local area = event.area
+	--local x_start, x_end = area.left_top.x, area.right_bottom.x
+	--local y_start, y_end = area.left_top.y, area.right_bottom.y
+	--allow 30% border overlap
+	local x_start, x_end = area.left_top.x - radius/3, area.right_bottom.x + radius/3
+	local y_start, y_end = area.left_top.y - radius/3, area.right_bottom.y + radius/3
+
+	-- Abstand für hexagonales Muster
+	local radius = radius / 1.1 -- 10% Overlap
+	local x_step = 2 * radius
+	local y_step = math.sqrt(3) * radius
+
+	-- Berechne effektive Anzahl der Kreise
+	local x_count = math.floor((x_end - x_start) / x_step)
+	local y_count = math.floor((y_end - y_start) / y_step)
+
+	-- Berechne tatsächliche Abdeckung durch die Kreise
+	local effective_width = (x_count - 1) * x_step + 2 * radius
+	local effective_height = (y_count - 1) * y_step + 2 * radius
+
+	-- Zentrierung: Versatz berechnen
+	local x_offset = x_start + ((x_end - x_start) - effective_width) / 2
+	local y_offset = y_start + ((y_end - y_start) - effective_height) / 2
+
+	-- Versuche, hexagonales Gitter zu platzieren
+	for y = y_offset + radius, y_offset + effective_height - radius, y_step do
+		local row_offset = ((math.floor((y - y_offset) / y_step) % 2) == 0) and 0 or radius
+
+		for x = x_offset + radius + row_offset, x_offset + effective_width - radius, x_step do
+			-- Setze Dummy-Entität als "Kreis"
+			table.insert(positions, {x, y})
+			circles_placed = true -- Mindestens ein Kreis wurde gesetzt
+		end
+	end
+
+	-- Fallback: Eine horizontale oder vertikale Reihe, falls kein Gitter passt
+	if #positions == 0 then
+		local x_range = x_end - x_start
+		local y_range = y_end - y_start
+
+		if x_range >= y_range then
+			-- Horizontale Reihe platzieren
+			for x = x_start + radius, x_end - radius, x_step do
+				table.insert(positions,  {x, (y_start + y_end) / 2})
+			end
+		else
+			-- Vertikale Reihe platzieren
+			for y = y_start + radius, y_end - radius, y_step do
+				table.insert(positions, {(x_start + x_end) / 2, y})
+			end
+		end
+	end
+
+	-- Letzter Fallback: Ein Kreis in die Mitte setzen
+	if #positions == 0 then
+		local center_x = (x_start + x_end) / 2
+		local center_y = (y_start + y_end) / 2
+		table.insert(positions, {center_x, center_y})
+	end
+
+	for _, position in ipairs(positions) do
+		--game.forces[player.force.name].add_chart_tag(surface, {position = position, text = "O"})
+		targetIonCannon(force, {x=position[1],y=position[2]}, surface, player)
+	end
+end)
+
+
 
 Events.on_init(this.initialize)
 Events.on_load(this.onLoad)

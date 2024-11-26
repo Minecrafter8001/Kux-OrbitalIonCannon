@@ -7,13 +7,19 @@ local mod = KuxCoreLib.ModInfo.new{separator="-"}
 --mod.path="__"..mod.name.."__/"
 --mod.prefix=mod.name.."-"
 
+---technology names
 mod.tech = {
 	cannon = "orbital-ion-cannon",
-	auto_targeting = "auto-targeting"
+	area_fire = "orbital-ion-cannon-area-fire",
+	auto_targeting = "auto-targeting",
+	cannon_mk2 = "orbital-ion-cannon-mk2"
 }
+
+---technology recipe names
 mod.recipe = {
 	cannon = "orbital-ion-cannon",
-	targeter = "ion-cannon-targeter"
+	targeter = "ion-cannon-targeter",
+	cannon_mk2 = "orbital-ion-cannon-mk2"
 }
 
 mod:protect()
