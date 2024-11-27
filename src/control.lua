@@ -304,6 +304,12 @@ end
 -- 	if GetCannonTableFromForce(force).size()
 -- end
 
+
+---@param force LuaForce
+---@param position MapPosition
+---@param surface LuaSurface
+---@param player LuaPlayer
+---@return boolean
 function targetIonCannon(force, position, surface, player)
 	local cannonNum = 0
 	local targeterName = "Auto"
@@ -338,7 +344,8 @@ function targetIonCannon(force, position, surface, player)
 		table.insert(storage.markers, {marker, current_tick + settings.global["ion-cannon-chart-tag-duration"].value})
 		local CrosshairsPosition = position
 		CrosshairsPosition.y = CrosshairsPosition.y - 20
-		surface.create_entity({name = "crosshairs", target = IonTarget, force = force, position = CrosshairsPosition, speed = 0})
+		local projectile = force.technologies[mod.tech.cannon_mk2].researched and "crosshairs-mk2" or "crosshairs"
+		surface.create_entity({name = projectile, target = IonTarget, force = force, position = CrosshairsPosition, speed = 0})
 		for i, player in pairs(game.connected_players) do
 			if settings.get_player_settings(player)["ion-cannon-play-klaxon"].value and storage.klaxonTick < current_tick then
 				storage.klaxonTick = current_tick + 60
@@ -501,16 +508,27 @@ function on_built(e)
 	inv.remove({name="orbital-ion-cannon", count=1})
 	]]
 
-	if e.entity.name ~= "orbital-ion-cannon" then return end
+	if e.entity.name ~= "orbital-ion-cannon" and e.entity.name ~= "orbital-ion-cannon-mk2" then return end
 	if not e.platform then e.platform = e.entity.surface.platform end
 	if not e.platform then return end
-	install_ion_cannon(e.platform.force, e.platform.space_location)
+	local force = e.platform.force
+	local isMk2Editity = e.entity.name == "orbital-ion-cannon-mk2"
+	local isMk2Tech = force.technologies[mod.tech.cannon_mk2].researched
+	local result = (isMk2Editity and isMk2Tech) or (not isMk2Editity and not isMk2Tech)
+	if result then install_ion_cannon(e.platform.force, e.platform.space_location) else
+		e.entity.surface.create_entity({
+			name = "big-explosion",
+			position = e.entity.position,
+		})
+		e.entity.destroy()
+		force.print({"explosion-because-obsolete-technology"})
+	end
 end
 
 Events.on_built(on_built)
 
 Events.on_event(defines.events.on_player_selected_area, function(event)
-	if not event.item == "orbital-ion-cannon-area-targeter" then return end
+	if event.item ~= "orbital-ion-cannon-area-targeter" then return end
 	local player = game.players[event.player_index]
 	local radius = settings.startup["ion-cannon-radius"].value --[[@as number]] -- Radius eines Kreises
 	local surface = player.surface

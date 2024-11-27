@@ -1,116 +1,108 @@
+local utils = {}
+function utils.merge(common, data, final_fixes)
+	--print("merge", order_index, common, data, final_fixes)
+	local merged = {}
+	--merge common-- << extend(common)
+	for k,v in pairs(common) do merged[k] = v end
+
+	--merge data-- << x:int(data)
+	for k,v in pairs(data) do merged[k] = type(k)~="number" and v or nil end
+
+	--merge final_fixes--
+	for k,v in pairs(final_fixes) do merged[k] = v; end
+
+	--clean up--
+	merged.prefix = nil
+
+	return merged
+end
+
+local fx = {common = {}}
+
+--- CreateEntityTriggerEffectItem - 'create-entity'
+---@class KuxCoreLib.PrototypeData.Extent.CreateEntityTriggerEffectItem : data.CreateEntityTriggerEffectItem
+---@field type string?
+---@field entity_name string?
+---@field [1] string entity_name
+---[View documentation](https://lua-api.factorio.com/latest/types/CreateEntityTriggerEffectItem.html)
+
+--- CreateEntityTriggerEffectItem - 'create-entity' constructor <br>
+--- [1] name, [<parameters ...>](https://lua-api.factorio.com/latest/types/CreateEntityTriggerEffectItem.html) <br>
+---@param t KuxCoreLib.PrototypeData.Extent.CreateEntityTriggerEffectItem
+function fx.create_entity(t)
+	local d = utils.merge(fx["common"], t, {
+		type          = "create-entity",
+		entity_name   = t[1]
+	})
+	return d
+end
+
+---------------------------------------------------------------------------------------------------
+--TODO rename "crosshairs" to "orbital-ion-cannon-projectile"
 data:extend({
 	{
 		type = "projectile",
 		name = "crosshairs",
 		flags = {"not-on-map"},
 		acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
-		action =
-		{
+		action = {
 			{
 				type = "direct",
-				action_delivery =
-				{
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "create-entity",
-							entity_name = "huge-explosion"
-						},
-						{
-							type = "create-entity",
-							entity_name = "ion-cannon-beam"
-						},
-						{
-							type = "create-entity",
-							entity_name = "enormous-scorchmark",
-							check_buildability = true
-						},
-						{
-							type = "create-entity",
-							entity_name = "ion-cannon-explosion",
-							trigger_created_entity = true
-						},
-						{
-							type = "show-explosion-on-chart",
-							scale = settings.startup["ion-cannon-radius"].value / 20
-						},
+					target_effects = {
+						fx.create_entity{"huge-explosion"},
+						fx.create_entity{"ion-cannon-beam"},
+						fx.create_entity{"enormous-scorchmark",check_buildability = true},
+						fx.create_entity{"ion-cannon-explosion", trigger_created_entity = true },
+						{ type = "show-explosion-on-chart", scale = settings.startup["ion-cannon-radius"].value / 20 },
 					}
 				}
 			},
 			{
 				type = "area",
 				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery =
-				{
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "create-fire",
-							entity_name = "fire-flame"
-						},
-						{
-							type = "create-fire",
-							entity_name = "fire-flame-on-tree"
-						}
+					target_effects = {
+						{ type = "create-fire", entity_name = "fire-flame" },
+						{ type = "create-fire", entity_name = "fire-flame-on-tree" }
 					}
 				}
 			},
 			{
 				type = "area",
 				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery =
-				{
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "damage",
-							damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"}
-						},
-						{
-							type = "damage",
-							damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"}
-						}
+					target_effects = {
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"} },
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"} }
 					}
 				}
 			},
 			{
 				type = "area",
 				radius = settings.startup["ion-cannon-radius"].value,
-				action_delivery =
-				{
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "create-sticker",
-							sticker = "fire-sticker"
-						},
-						{
-							type = "create-fire",
-							entity_name = "fire-flame"
-						},
-						{
-							type = "create-fire",
-							entity_name = "fire-flame-on-tree"
-						}
+					target_effects = {
+						{ type = "create-sticker", sticker = "fire-sticker" },
+						{ type = "create-fire", entity_name = "fire-flame" },
+						{ type = "create-fire", entity_name = "fire-flame-on-tree" }
 					}
 				}
 			}
 		},
 		light = {intensity = 0, size = 0},
-		animation =
-		{
+		animation = {
 			filename = "__core__/graphics/empty.png",
 			priority = "low",
 			width = 1,
 			height = 1,
 			frame_count = 1
 		},
-		shadow =
-		{
+		shadow = {
 			filename = "__core__/graphics/empty.png",
 			priority = "low",
 			width = 1,
@@ -124,54 +116,38 @@ data:extend({
 		name = "dummy-crosshairs",
 		flags = {"not-on-map"},
 		acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
-		action =
-		{
+		action = {
 			{
 				type = "area",
 				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery =
-				{
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "damage",
-							damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"}
-						},
-						{
-							type = "damage",
-							damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"}
-						}
+					target_effects = {
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"} },
+						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"} }
 					}
 				}
 			},
 			{
 				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value,
-				action_delivery =
-				{
+				radius = settings.startup["ion-cannon-radius"].value --[[@as double]],
+				action_delivery = {
 					type = "instant",
-					target_effects =
-					{
-						{
-							type = "create-fire",
-							entity_name = "fire-flame"
-						}
+					target_effects = {
+						{ type = "create-fire", entity_name = "fire-flame" }
 					}
 				}
 			}
 		},
 		light = {intensity = 0, size = 0},
-		animation =
-		{
+		animation = {
 			filename = "__core__/graphics/empty.png",
 			priority = "low",
 			width = 1,
 			height = 1,
 			frame_count = 1
 		},
-		shadow =
-		{
+		shadow = {
 			filename = "__core__/graphics/empty.png",
 			priority = "low",
 			width = 1,
@@ -183,12 +159,8 @@ data:extend({
 	{
 		type = "sound",
 		name = "ion-cannon-klaxon",
-		variations =
-		{
-			{
-				filename = mod.path.."sound/Klaxon.ogg",
-				volume = 1.0
-			},
+		variations = {
+			{ filename = mod.path.."sound/Klaxon.ogg", volume = 1.0 },
 		},
 	},
 
@@ -204,8 +176,7 @@ data:extend({
 		collision_box = {{0,0}, {0,0}},
 		selection_box = {{0,0}, {0,0}},
 		resistances = {},
-		animations =
-		{
+		animations = {
 			{
 				filename = mod.path.."graphics/crosshairs_anim.png",
 				priority = "low",
@@ -237,8 +208,7 @@ data:extend({
 		name = "ion-cannon-explosion",
 		flags = {"not-on-map"},
 		show_when_smoke_off = true,
-		animation =
-		{
+		animation = {
 			filename = mod.path.."graphics/explosion.png",
 			priority = "low",
 			width = 192,
@@ -260,8 +230,7 @@ data:extend({
 		name = "ion-cannon-beam",
 		flags = {"not-on-map"},
 		show_when_smoke_off = true,
-		animation =
-		{
+		animation = {
 			filename = mod.path.."graphics/IonBeam.png",
 			priority = "low",
 			width = 110,
@@ -284,8 +253,7 @@ data:extend({
 		type = "explosion",
 		name = "huge-explosion",
 		flags = {"not-on-map"},
-		animations =
-		{
+		animations = {
 			{
 				filename = "__base__/graphics/entity/medium-explosion/medium-explosion.png",
 				priority = "high",
@@ -299,21 +267,14 @@ data:extend({
 			},
 		},
 		light = {intensity = 2, size = settings.startup["ion-cannon-radius"].value * 3},
-		sound =
-		{
-			{
-				filename = mod.path.."sound/OrbitalIonCannon.ogg",
-				volume = 1.4
-			},
+		sound = {
+			{ filename = mod.path.."sound/OrbitalIonCannon.ogg", volume = 1.4 },
 		},
-		created_effect =
-		{
+		created_effect = {
 			type = "direct",
-			action_delivery =
-			{
+			action_delivery = {
 				type = "instant",
-				target_effects =
-				{
+				target_effects = {
 					{
 						type = "create-particle",
 						repeat_count = 60,
@@ -330,6 +291,12 @@ data:extend({
 		}
 	}
 })
+local mk2 = util.table.deepcopy(data.raw["projectile"]["crosshairs"])
+mk2.name = "crosshairs-mk2"
+mk2.action[3].action_delivery.target_effects[1].damage.amount = mk2.action[3].action_delivery.target_effects[1].damage.amount * 10
+mk2.action[3].action_delivery.target_effects[2].damage.amount = mk2.action[3].action_delivery.target_effects[2].damage.amount * 10
+data:extend({mk2})
+
 
 local yuge_crater = util.table.deepcopy(data.raw["corpse"]["big-scorchmark"])
 yuge_crater.name = "enormous-scorchmark"
@@ -364,24 +331,16 @@ yuge_crater.ground_patch_higher.sheet.scale = settings.startup["ion-cannon-radiu
 data:extend({yuge_crater})
 
 if not settings.startup["ion-cannon-flames"].value then
-	data.raw["projectile"]["crosshairs"].action =
-	{
+	data.raw["projectile"]["crosshairs"].action = {
 		{
 			type = "area",
 			radius = settings.startup["ion-cannon-radius"].value,
 			action_delivery =
 			{
 				type = "instant",
-				target_effects =
-				{
-					{
-						type = "damage",
-						damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"}
-					},
-					{
-						type = "damage",
-						damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"}
-					}
+				target_effects = {
+					{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"} },
+					{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"} }
 				}
 			}
 		},
@@ -390,26 +349,11 @@ if not settings.startup["ion-cannon-flames"].value then
 			action_delivery =
 			{
 				type = "instant",
-				target_effects =
-				{
-					{
-						type = "create-entity",
-						entity_name = "huge-explosion"
-					},
-					{
-						type = "create-entity",
-						entity_name = "ion-cannon-beam"
-					},
-					{
-						type = "create-entity",
-						entity_name = "enormous-scorchmark",
-						check_buildability = true
-					},
-					{
-						type = "create-entity",
-						entity_name = "ion-cannon-explosion",
-						trigger_created_entity = true
-					}
+				target_effects = {
+					{ type = "create-entity", entity_name = "huge-explosion" },
+					{ type = "create-entity", entity_name = "ion-cannon-beam" },
+					{ type = "create-entity", entity_name = "enormous-scorchmark", check_buildability = true },
+					{ type = "create-entity", entity_name = "ion-cannon-explosion", trigger_created_entity = true }
 				}
 			}
 		},
@@ -419,20 +363,10 @@ if not settings.startup["ion-cannon-flames"].value then
 			action_delivery =
 			{
 				type = "instant",
-				target_effects =
-				{
-					{
-						type = "create-fire",
-						entity_name = "fire-flame-on-tree"
-					},
-					{
-						type = "damage",
-						damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"}
-					},
-					{
-						type = "damage",
-						damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"}
-					}
+				target_effects = {
+					{ type = "create-fire", entity_name = "fire-flame-on-tree" },
+					{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value / 2, type = "laser"}},
+					{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value / 2, type = "explosion"}}
 				}
 			}
 		}
