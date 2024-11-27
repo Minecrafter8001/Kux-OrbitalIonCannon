@@ -49,6 +49,7 @@ end
 
 local x = extend{prefix="", order = "k-"}
 x:technology{ mod.tech.cannon,
+	localised_name = {"technology-name.orbital-ion-cannon"},
 	localised_description = isSpaceTravel and {"technology-description.orbital-ion-cannon-space-travel"} or {"technology-description.orbital-ion-cannon"},
 	icon = mod.path.."graphics/icon64.png",
 	icon_size = 64,
@@ -77,11 +78,21 @@ x:technology{ mod.tech.auto_targeting,
 	unit ={ count = 3000, ingredients = ingredientsTargeting, time = 60 }
 }
 x:technology{ mod.tech.cannon_mk2,
+	localised_name = {"technology-name.orbital-ion-cannon-mk2"},
+	localised_description = isSpaceTravel and {"technology-description.orbital-ion-cannon-mk2-space-travel"} or {"technology-description.orbital-ion-cannon-mk2"},
 	icon = mod.path.."graphics/tech-mk2.png",
 	icon_size = 256,
 	prerequisites = {mod.tech.auto_targeting},
 	effects = {{type = "unlock-recipe",recipe = mod.recipe.cannon_mk2}},
 	unit ={ count = 5000, ingredients = ingredientsTargeting, time = 60 }
+}
+
+x:technology{ mod.tech.cannon_mk2_upgrade,
+	icon = mod.path.."graphics/tech-mk2-upgrade.png",
+	icon_size = 256,
+	prerequisites = {mod.tech.cannon_mk2},
+	effects = {},
+	unit ={ count = 50, ingredients = ingredientsTargeting, time = 300 }
 }
 
 --[[ --TODO implement this

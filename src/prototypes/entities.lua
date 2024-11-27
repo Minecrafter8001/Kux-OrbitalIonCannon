@@ -37,6 +37,26 @@ function fx.create_entity(t)
 	return d
 end
 
+--- DamageTriggerEffectItem - 'damage'
+---@class KuxCoreLib.PrototypeData.Extent.DamageTriggerEffectItem : data.DamageTriggerEffectItem
+---@field type string?
+---@field entity_name string?
+---@field [1] DamageTypeID damage_type
+---@field [2] string damage_amount
+---[View documentation](https://lua-api.factorio.com/latest/types/DamageTriggerEffectItem.html)
+
+--- DamageTriggerEffectItem - 'damage' constructor <br>
+--- [1] damage_type, [2] damage_amount, [<parameters ...>](https://lua-api.factorio.com/latest/types/DamageTriggerEffectItem.html) <br>
+---@param t KuxCoreLib.PrototypeData.Extent.DamageTriggerEffectItem
+function fx.damage(t)
+	local d = utils.merge(fx["common"], t, {
+		type          = "damage",
+		damage   = {type = t[1], amount = t[2]}
+	})
+	return d
+end
+
+
 ---------------------------------------------------------------------------------------------------
 --TODO rename "crosshairs" to "orbital-ion-cannon-projectile"
 data:extend({
@@ -76,8 +96,8 @@ data:extend({
 				action_delivery = {
 					type = "instant",
 					target_effects = {
-						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"} },
-						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"} }
+						fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value },
+						fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value}
 					}
 				}
 			},
@@ -123,8 +143,8 @@ data:extend({
 				action_delivery = {
 					type = "instant",
 					target_effects = {
-						{ type = "damage", damage = {amount = settings.startup["ion-cannon-laser-damage"].value, type = "laser"} },
-						{ type = "damage", damage = {amount = settings.startup["ion-cannon-explosion-damage"].value, type = "explosion"} }
+						fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value},
+						fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value}
 					}
 				}
 			},

@@ -513,7 +513,7 @@ function on_built(e)
 	if not e.platform then return end
 	local force = e.platform.force
 	local isMk2Editity = e.entity.name == "orbital-ion-cannon-mk2"
-	local isMk2Tech = force.technologies[mod.tech.cannon_mk2].researched
+	local isMk2Tech = force.technologies[mod.tech.cannon_mk2_upgrade].researched
 	local result = (isMk2Editity and isMk2Tech) or (not isMk2Editity and not isMk2Tech)
 	if result then install_ion_cannon(e.platform.force, e.platform.space_location) else
 		e.entity.surface.create_entity({
@@ -602,7 +602,18 @@ Events.on_event(defines.events.on_player_selected_area, function(event)
 	end
 end)
 
-
+Events.on_event(defines.events.on_research_finished, function(event)
+	if event.research.name ~= mod.tech.cannon_mk2 then return end
+	local force = event.research.force
+	local cannons = GetCannonTableFromForce(force)
+	local perSurface = CountEntriesBySurface(cannons)
+	storage.forces_ion_cannon_table[force.name] = {}
+	for force_name, count in pairs(perSurface) do
+		count =  math.floor(count/10 +0.5)
+		for i = 1, count do install_ion_cannon(force, game.surfaces[force_name]) end
+	end
+	force.print({"upgrade-to-ion-cannon-mk2"})
+end)
 
 Events.on_init(this.initialize)
 Events.on_load(this.onLoad)

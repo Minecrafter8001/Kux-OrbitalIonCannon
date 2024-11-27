@@ -12,7 +12,8 @@ mod.tech = {
 	cannon = "orbital-ion-cannon",
 	area_fire = "orbital-ion-cannon-area-fire",
 	auto_targeting = "auto-targeting",
-	cannon_mk2 = "orbital-ion-cannon-mk2"
+	cannon_mk2 = "orbital-ion-cannon-mk2",
+	cannon_mk2_upgrade = "orbital-ion-cannon-mk2-upgrade"
 }
 
 ---technology recipe names
