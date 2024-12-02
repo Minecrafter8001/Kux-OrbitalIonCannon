@@ -19,8 +19,7 @@ data:extend({
         order = "d[artillery]-e[ion-cannon-targeter-1]",
         -- associated_control_input = "ion-cannon-targeter",
         --action = "lua", --> Events.on_event(defines.events.on_lua_shortcut,...)
-		action = "spawn-item",
-		item_to_spawn = "ion-cannon-targeter",
+		action = "spawn-item", item_to_spawn = "ion-cannon-targeter", --TODO select correct targeter
         style = "red",
         technology_to_unlock = mod.tech.cannon,
 		unavailable_until_unlocked = true,

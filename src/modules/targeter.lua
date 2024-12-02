@@ -7,7 +7,7 @@ mod.modules.IonTargeter = Targeter
 
 function this.on_player_cursor_stack_changed(event)
 	local player = game.players[event.player_index]
-	if not isHolding({name = "ion-cannon-targeter", count = 1}, player) then return end
+	if not isHolding({name = "ion-cannon-targeter", count = 1}, player) and not isHolding({name = "ion-cannon-targeter-mk2", count = 1}, player)then return end
 	if player.character and not Permissions.hasPermission(player.index) then
 		player.print({"ion-permission-denied"})
 		playSoundForPlayer("unable-to-comply", player)
@@ -23,22 +23,29 @@ function this.on_player_cursor_stack_changed(event)
 	end
 end
 
-local allowed_items = {"ion-cannon-targeter", "orbital-ion-cannon-area-targeter"}
+local allowed_items = {"ion-cannon-targeter", "ion-cannon-targeter-mk2","orbital-ion-cannon-area-targeter"}
 
 local function give_shortcut_item(player, prototype_name)
-	if prototypes.item[prototype_name] then
-		local cc = false
-		if Version.baseVersionGreaterOrEqual1d1() then
-			cc = player.clear_cursor() --COMPATIBILITY 1.1
-		else
-			cc = player.clean_cursor() --Factorio < 1.1
-		end
-		--if remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player=player}) then
-			player.cursor_ghost = prototypes.item[prototype_name]
-		--else
-		--	player.cursor_stack.set_stack({name = prototype_name}) --Warining: this will allow the player to obtain infinite remotes
-		--	player.get_main_inventory().remove({name = prototype_name, count = 1})
-		--end
+	if prototype_name == "ion-cannon-targeter" and player.force.technologies[mod.tech.cannon_mk2_upgrade].researched then
+		prototype_name = "ion-cannon-targeter-mk2"
+	end
+	if not prototypes.item[prototype_name] then return end
+	local cc = false
+	if Version.baseVersionGreaterOrEqual1d1() then
+		cc = player.clear_cursor() --COMPATIBILITY 1.1
+	else
+		cc = player.clean_cursor() --Factorio < 1.1
+	end
+	if player.controller_type == defines.controllers.remote then
+		 --Warning: this will allow the player to obtain infinite remotes
+		player.cursor_stack.set_stack({name = prototype_name})
+		--player.cursor_ghost = prototypes.item[prototype_name]
+	elseif remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player=player}) then
+		 --Warning: this will allow the player to obtain infinite remotes
+		player.cursor_ghost = prototypes.item[prototype_name]
+	else
+		player.cursor_stack.set_stack({name = prototype_name}) --Warning: this will allow the player to obtain infinite remotes
+		player.get_main_inventory().remove({name = prototype_name, count = 1})
 	end
 end
 

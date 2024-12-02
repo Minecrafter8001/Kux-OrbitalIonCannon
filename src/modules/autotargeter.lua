@@ -4,7 +4,6 @@ local Events = KuxCoreLib.Events
 require "modules/tools"
 require "modules/IonCannonStorage"
 ---------------------------------------------------------------------------------------------------
---local turretBlacklist = {"ion-cannon-targeter", "kr-tesla-coil-turret"}
 
 function findNestNear(entity, chunk_position)
 	local search = Chunk.to_area(chunk_position)

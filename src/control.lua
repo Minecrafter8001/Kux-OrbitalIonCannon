@@ -4,6 +4,12 @@
 --- * there must be no global functions -> WIP
 ---------------------------------------------------------------------------------------------------
 
+---@class Control
+Control = {}
+
+---@class Control.private : Control
+local this = {}
+---------------------------------------------------------------------------------------------------
 require("mod")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 Version = KuxCoreLib.Version.asGlobal()
@@ -25,7 +31,7 @@ require "modules/IonCannon"
 
 local fLog = function (functionName) print("control."..functionName) end
 
-local this = {}
+setmetatable(this, {__index = Control})
 
 _G.when_ion_cannon_targeted = nil
 
@@ -62,7 +68,7 @@ function this.initialize()
 	end
 	if IonCannonStorage.countAll() > 0 then
 		storage.IonCannonLaunched = true
-		script.on_nth_tick(60, process_60_ticks)
+		this.enableNthTick60()
 	end
 end
 
@@ -70,7 +76,7 @@ function this.onLoad()
 	fLog("onLoad")
 	Interface.generateEvents()
 	if storage.IonCannonLaunched then
-		Events.on_nth_tick(60, process_60_ticks)
+		this.enableNthTick60()
 	end
 end
 
@@ -106,7 +112,7 @@ function this.on_player_created(e)
 end
 
 ---@param e NthTickEventData
-function process_60_ticks(e)
+function this.process_60_ticks(e)
 	local current_tick = e.tick
 	for i = #storage.markers, 1, -1 do -- Loop over table backwards because some entries get removed within the loop
 		local marker = storage.markers[i]
@@ -168,7 +174,6 @@ function this.on_rocket_launched(e)
 	end
 end
 
---- Called when a player uses a blueprint or blueprint book.
 --- @param e EventData.on_pre_build
 function this.on_pre_build(e)
 	local current_tick = e.tick
@@ -179,10 +184,8 @@ function this.on_pre_build(e)
 	local player = game.players[e.player_index]
 	if isHolding({name = "ion-cannon-targeter", count = 1}, player) and player.force.is_chunk_charted(player.surface, Chunk.from_position(e.position)) then
 		IonCannon.target(player.force, e.position, player.surface, player)
-		--player.cursor_stack.clear()
-		--global.holding_targeter[event.player_index] = true
-		--player.cursor_stack.set_stack({name = "ion-cannon-targeter", count = 1})
-		--clearing and then setting the stack seems to destroy the item as you put it away, not sure why this is here
+	elseif isHolding({name = "ion-cannon-targeter-mk2", count = 1}, player) and player.force.is_chunk_charted(player.surface, Chunk.from_position(e.position)) then
+		IonCannon.target(player.force, e.position, player.surface, player)
 	end
 end
 
@@ -190,16 +193,19 @@ end
 --- @param e EventData.on_built_entity
 function this.on_built_entity(e)
 	local entity = e.entity
-	if entity.name == "ion-cannon-targeter" then
-		local player = game.players[e.player_index]
-		player.cursor_stack.set_stack({name = "ion-cannon-targeter", count = 1})
-		entity.destroy()
-		return
-	end
-	if entity.name == "entity-ghost" then
-		if entity.ghost_name == "ion-cannon-targeter" then
+	local targeter_names ={"ion-cannon-targeter", "ion-cannon-targeter-mk2"}
+	for _, targeter_name in ipairs(targeter_names) do
+		if entity.name == targeter_name then
+			local player = game.players[e.player_index]
+			player.cursor_stack.set_stack({name = targeter_name, count = 1})
 			entity.destroy()
 			return
+		end
+		if entity.name == "entity-ghost" then
+			if entity.ghost_name == targeter_name then
+				entity.destroy()
+				return
+			end
 		end
 	end
 end
@@ -215,6 +221,10 @@ function this.on_trigger_created_entity(e)
 			force.chart(created_entity.surface, Position.expand_to_area(created_entity.position, 1))
 		end
 	end
+end
+
+function Control.enableNthTick60()
+	Events.on_nth_tick(60, this.process_60_ticks)
 end
 
 

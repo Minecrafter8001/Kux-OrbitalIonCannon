@@ -11,9 +11,9 @@ local this = setmetatable({}, {__index = IonCannon})
 
 ---@param surface LuaSurfaceId
 ---@return LuaSurface
-function getOrbitingSurface(surface)
+function IonCannon.getOrbitingSurface(surface)
 	surface = getSurface(surface)
-	if surface.platform and surface.platform.space_location.type=="planet" then
+	if surface.platform and surface.platform.space_location and surface.platform.space_location.type=="planet" then
 		local s = game.surfaces[surface.platform.space_location.name]
 		if s and s.valid then surface = s end
 	end
@@ -47,7 +47,7 @@ end
 ---@param surface LuaSurfaceId
 ---@return integer
 function IonCannon.countReady(force, surface)
-	surfaceName = getOrbitingSurface(surface).name
+	surfaceName = this.getOrbitingSurface(surface).name
 	local count = 0
 	for i, cannon in pairs(IonCannonStorage.fromForce(force)) do
 		if cannon[3]==surfaceName and cannon[2] == 1 then count = count + 1 end
@@ -85,10 +85,7 @@ function IonCannon.countOrbitingIonCannons(force, surface)
 		end
 	end
 
-	if(surface.platform and surface.platform.space_location.type=="planet") then
-		local s = game.surfaces[surface.platform.space_location.name]
-		if s then surfaceName = s.name; surface=s end
-	end
+	surfaceName = this.getOrbitingSurface(surfaceName).name
 
 	local total = 0
 	local cannons = IonCannonStorage.fromForce(force)
@@ -214,7 +211,7 @@ end
 function IonCannon.install(force, surface)
 	local surfaceName = IonCannon.add(force, surface)
 
-	Events.on_nth_tick(60, process_60_ticks)
+	Control.enableNthTick60()
 	for _, player in pairs(force.connected_players) do
 		init_GUI(player)
 		playSoundForPlayer("ion-cannon-charging", player)
@@ -237,15 +234,6 @@ function this.on_built(e)
 	if not e.entity or not e.entity.valid then return end
 	--print("on_space_platform_built_entity "..e.entity.name)
 
-	--[[ temorary solutuion: place a radar
-	local inv = e.platform.hub.get_inventory(defines.inventory.hub_main)
-	if not inv then return end
-	if inv.get_item_count("orbital-ion-cannon") == 0 then return end
-	local surface = game.surfaces[e.platform.space_location.name] --TODO.validate
-	if not surface then return end
-	inv.remove({name="orbital-ion-cannon", count=1})
-	]]
-
 	if e.entity.name ~= "orbital-ion-cannon" and e.entity.name ~= "orbital-ion-cannon-mk2" then return end
 	if not e.platform then e.platform = e.entity.surface.platform end
 	if not e.platform then return end
@@ -253,7 +241,7 @@ function this.on_built(e)
 	local isMk2Editity = e.entity.name == "orbital-ion-cannon-mk2"
 	local isMk2Tech = force.technologies[mod.tech.cannon_mk2_upgrade].researched
 	local result = (isMk2Editity and isMk2Tech) or (not isMk2Editity and not isMk2Tech)
-	local isPlanet = e.platform.space_location.type == "planet"
+	local isPlanet = e.platform.space_location and e.platform.space_location.type == "planet"
 	if isPlanet and result then
 		IonCannon.install(e.platform.force, e.platform.space_location.name)
 	else

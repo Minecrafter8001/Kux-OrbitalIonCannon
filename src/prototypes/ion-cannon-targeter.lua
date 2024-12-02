@@ -1,36 +1,43 @@
-data:extend{
-	{
-		type = "item",
-		name = "ion-cannon-targeter",
-		icon = mod.path.."graphics/crosshairs64.png",
-		icon_size = 64,
-		place_result = "ion-cannon-targeter",
-		subgroup = "capsule",
-		order = "c[target]",
-		stack_size = 1,
-		flags = {"not-stackable", "only-in-cursor","spawnable"}
-	}--[[@as data.ItemPrototype]]
-}
-
-
-data:extend({
-	{
-		type = "recipe",
-		name = "ion-cannon-targeter",
-		energy_required = 0.5,
-		enabled = false,
-		category = "crafting",
-		ingredients =
+local function createTargeterItem(name)
+	data:extend{
 		{
-			{type="item", name ="processing-unit", amount=1},
-			{type="item", name ="plastic-bar", amount=2},
-			{type="item", name ="battery", amount=1}
+			type = "item",
+			name = name,
+			icon = mod.path.."graphics/crosshairs64.png",
+			icon_size = 64,
+			place_result = name,
+			subgroup = "capsule",
+			order = "c[target]",
+			stack_size = 1,
+			flags = {"not-stackable", "only-in-cursor","spawnable"}
+		}--[[@as data.ItemPrototype]]
+	}
+end
+createTargeterItem("ion-cannon-targeter")
+createTargeterItem("ion-cannon-targeter-mk2")
+
+local function createTargetRecipe(name)
+	data:extend({
+		{
+			type = "recipe",
+			name = name,
+			energy_required = 0.5,
+			enabled = false,
+			category = "crafting",
+			ingredients =
+			{
+				{type="item", name ="processing-unit", amount=1},
+				{type="item", name ="plastic-bar", amount=2},
+				{type="item", name ="battery", amount=1}
+			},
+			results = {
+				{type="item", name=name, amount=1}
+			}
 		},
-		results = {
-			{type="item", name="ion-cannon-targeter", amount=1}
-		}
-	},
-})
+	})
+end
+createTargetRecipe("ion-cannon-targeter")
+createTargetRecipe("ion-cannon-targeter-mk2")
 
 local ion_cannon_targeter = util.table.deepcopy(data.raw["ammo-turret"]["gun-turret"])
 --local ion_cannon_targeter = util.table.deepcopy(data.raw["capsule"]["artillery-targeting-remote"])
@@ -149,7 +156,10 @@ ion_cannon_targeter.attack_parameters =
 
 data:extend({ion_cannon_targeter})
 
---- DRAFT -----------------------------------------------------------------------------------------
+local ion_cannon_targeter_mk2 = util.table.deepcopy(data.raw["ammo-turret"]["ion-cannon-targeter"])
+ion_cannon_targeter_mk2.name = "ion-cannon-targeter-mk2"
+ion_cannon_targeter_mk2.attack_parameters.range = ion_cannon_targeter.attack_parameters.range * 1.5
+data:extend({ion_cannon_targeter_mk2})
 
 data:extend{
 	{

@@ -23,6 +23,7 @@ mod.tech = {
 mod.recipe = {
 	cannon = "orbital-ion-cannon",
 	targeter = "ion-cannon-targeter",
+	targeter_mk2 = "ion-cannon-targeter-mk2",
 	cannon_mk2 = "orbital-ion-cannon-mk2"
 }
 

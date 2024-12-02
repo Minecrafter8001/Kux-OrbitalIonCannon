@@ -57,16 +57,6 @@ do --#region ElementBuilder
 	end
 end --#endregion ElementBuilder
 
----@param player LuaPlayer
----@return string
-local function getOrbitingSurfaceName(player)
-	local surfaceName = player.surface.name
-	if player.surface.platform and player.surface.platform.space_location.type == "planet" then
-		surfaceName = player.surface.platform.space_location.name
-	end
-	return surfaceName
-end
-
 ---@param e EventData.on_gui_checked_state_changed
 function this.on_gui_checked_state_changed(e)
 	local checkbox = e.element
@@ -111,7 +101,7 @@ function this.on_gui_click(e)
 	elseif name == "add-ion-cannon" then
 		surfaceName = IonCannon.add(force, player.surface)
 		storage.IonCannonLaunched = true
-		Events.on_nth_tick(60, process_60_ticks)
+		Control.enableNthTick60()
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
@@ -125,7 +115,7 @@ function this.on_gui_click(e)
 		IonCannon.add(force, surfaceName)
 		IonCannon.add(force, surfaceName)
 		storage.IonCannonLaunched = true
-		Events.on_nth_tick(60, process_60_ticks)
+		Control.enableNthTick60()
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
@@ -228,7 +218,7 @@ function open_GUI(player)
 	local frame = player.gui.left["ion-cannon-stats"]
 	local force = player.force
 	local forceName = force.name
-	local surfaceName = getOrbitingSurfaceName(player)
+	local surfaceName = IonCannon.getOrbitingSurface(player.surface).name
 	local player_index = player.index
 	if frame and storage.goToFull[player_index] then frame.destroy() return end
 
@@ -295,7 +285,7 @@ function update_GUI(player)
 	local force = player.force
 	--local forceName = force.name
 	local playerIndex = player.index
-	local surfaceName = getOrbitingSurfaceName(player)
+	local surfaceName = IonCannon.getOrbitingSurface(player.surface).name
 
 	if button then
 		local numReadyCannons = IonCannon.countReady(force, surfaceName)
@@ -352,7 +342,7 @@ function createFullCannonTableFiltered(player)
 	local force = player.force
 	local cannonTable = statsFrame.add{type = "table", column_count = 2, name = "ion-cannon-table"}
 	local cannons = IonCannonStorage.fromForce(force)
-	local surfaceName = getOrbitingSurfaceName(player)
+	local surfaceName = IonCannon.getOrbitingSurface(player.surface).name
 
 	for i = 1, #cannons do
 		if surfaceName == cannons[i][3] then
