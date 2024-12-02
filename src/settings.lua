@@ -10,7 +10,7 @@ data:extend({
 		order = "a",
 		default_value = 25,
 		minimum_value = 2,
-		maximum_value = 500
+		maximum_value = 50
 	},
 	{
 		type = "int-setting",

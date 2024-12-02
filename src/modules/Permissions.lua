@@ -12,7 +12,7 @@ Permissions.initialize = function()
 
 	--TODO revise initialization
 	storage.permissions = {}
-	storage.permissions[-2] = settings.global["ion-cannon-auto-targeting"].value
+	storage.permissions[-2] = settings.global["ion-cannon-auto-targeting"].value --[[@as boolean]]
 	storage.permissions[-1] = false
 	storage.permissions[0] = false
 end

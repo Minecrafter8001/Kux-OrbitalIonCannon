@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.0
+  Features:
+    - Button shows number of ion cannons ready to fire
+  Changes:
+    - Ion Cannon Mk2 has now x1.5 Radius
+  Bugfixes:
+    - fix a bug in ion-cannon-table (table expected, got nil)
+    - fix a bug on forces merging
+    - fix descriptions
+  Info:
+    - code refactoring
+---------------------------------------------------------------------------------------------------
 Version: 3.7.2
   Features:
     - Add technology to upgrsade existing Ion Cannons to Mk2

@@ -1,32 +1,91 @@
 local Events = KuxCoreLib.Events
 require "modules/tools"
-require "modules/ion-cannon-table"
+require "modules/IonCannonStorage"
 local mod_gui = require("mod-gui")
+local ElementBuilder = KuxCoreLib.GuiBuilder.ElementBuilder
+local GuiElementCache = KuxCoreLib.GuiElementCache
+
 
 UiElementDefinitions = {
 	["ion-cannon-button"] = {type="button", style = "ion-cannon-button-style"}
 }
 
+---@class ModGui
 ModGui = {}
 
-local on_gui_checked_state_changed = function(event)
-	local checkbox = event.element
+---@class ModGui.private : ModGui
+local this = setmetatable({}, {__index = ModGui})
+
+-----------------------------------------------------------------------------------------------------------------------
+
+local createButtonContent = nil
+
+do --#region ElementBuilder
+	local eb = ElementBuilder or error("Invalid state")
+	local frame = eb.frame
+	local flow = eb.flow
+	local table = eb.table
+	local label = eb.label
+	local textfield = eb.textfield
+	local button = eb.button
+	local empty_widget = eb.emptywidget
+
+	createButtonContent = function(button)
+		ElementBuilder.createView(button,
+		empty_widget{
+			width = 32, height = 32,
+			children = {
+				flow{
+					width = 32, height = 32,
+					horizontal_align = "right",
+					vertical_align = "top",
+					children = {
+						label{caption = "0",top_padding = -2, right_padding = 2},
+					}
+				},
+				flow{
+					width = 32, height = 32,
+					horizontal_align = "left",
+					vertical_align = "bottom",
+					children = {
+						label{caption = "0", left_margin=2, bottom_padding = -2},
+					}
+				}
+			}
+		}
+		)
+	end
+end --#endregion ElementBuilder
+
+---@param player LuaPlayer
+---@return string
+local function getOrbitingSurfaceName(player)
+	local surfaceName = player.surface.name
+	if player.surface.platform and player.surface.platform.space_location.type == "planet" then
+		surfaceName = player.surface.platform.space_location.name
+	end
+	return surfaceName
+end
+
+---@param e EventData.on_gui_checked_state_changed
+function this.on_gui_checked_state_changed(e)
+	local checkbox = e.element
 	if checkbox.name == "show" then
-		storage.goToFull[event.player_index] = false
+		storage.goToFull[e.player_index] = false
 		storage.permissions[-1] = checkbox.state
-		open_GUI(game.players[event.player_index])
+		open_GUI(game.players[e.player_index])
 	elseif checkbox.name == "ion-cannon-auto-target-enabled" then
-		storage.goToFull[event.player_index] = false
+		storage.goToFull[e.player_index] = false
 		storage.permissions[-2] = checkbox.state
-		open_GUI(game.players[event.player_index])
+		open_GUI(game.players[e.player_index])
 	else
 		local index = tonumber(checkbox.name)
 		if checkbox.parent.name == "ion-cannon-admin-panel-table" then
 			Permissions.setPermission(index, checkbox.state)
 			if index == 0 then
 				Permissions.setAll(checkbox.state)
-				storage.goToFull[event.player_index] = false
-				open_GUI(game.players[event.player_index])
+				storage.goToFull[e.player_index] = false
+				open_GUI(game.players[e.player_index])
 			end
 		end
 	end
@@ -39,41 +98,44 @@ end
 -- alt :: boolean: If alt was pressed.
 -- control :: boolean: If control was pressed.
 -- shift :: boolean: If shift was pressed.
-local on_gui_click = function(event)
-	local player = game.players[event.element.player_index]
+
+---@param e EventData.on_gui_click
+function this.on_gui_click(e)
+	local player = game.players[e.element.player_index]
 	local force = player.force
-	local name = event.element.name
+	local name = e.element.name
 	local surfaceName
 	if name == "ion-cannon-button" then
 		open_GUI(player)
 		return
 	elseif name == "add-ion-cannon" then
-		surfaceName = addIonCannon(force, player.surface)
+		surfaceName = IonCannon.add(force, player.surface)
 		storage.IonCannonLaunched = true
 		Events.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
 		end
-		force.print({"ion-cannons-in-orbit", surfaceName, countOrbitingIonCannons(force, player.surface)})
+		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return
 	elseif name == "add-five-ion-cannon" then
-		surfaceName = addIonCannon(force, player.surface)
-		addIonCannon(force, player.surface)
-		addIonCannon(force, player.surface)
-		addIonCannon(force, player.surface)
-		addIonCannon(force, player.surface)
+		surfaceName = IonCannon.add(force, surfaceName)
+		IonCannon.add(force, surfaceName)
+		IonCannon.add(force, surfaceName)
+		IonCannon.add(force, surfaceName)
+		IonCannon.add(force, surfaceName)
 		storage.IonCannonLaunched = true
 		Events.on_nth_tick(60, process_60_ticks)
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
 			playSoundForPlayer("ion-cannon-charging", player)
 		end
-		force.print({"ion-cannons-in-orbit", surfaceName, countOrbitingIonCannons(force, player.surface)})
+		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return
 	elseif name == "remove-ion-cannon" then
-		if #GetCannonTableFromForce(force) > 0 then
-			table.remove(GetCannonTableFromForce(force))
+		local cannons = IonCannonStorage.fromForce(force)
+		if cannons and #cannons > 0 then
+			table.remove(cannons)
 			for i, player in pairs(force.connected_players) do
 				update_GUI(player)
 			end
@@ -83,13 +145,13 @@ local on_gui_click = function(event)
 		end
 		return
 	elseif name == "recharge-ion-cannon" then
-		ReduceIonCannonCooldowns(settings.global["ion-cannon-cooldown-seconds"].value);
+		IonCannon.ReduceIonCannonCooldowns(settings.global["ion-cannon-cooldown-seconds"].value);
 	end
 end
 
-ModGui.initEvents = function ()
-	Events.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
-	Events.on_event(defines.events.on_gui_click, on_gui_click)
+function ModGui.initEvents()
+	Events.on_event(defines.events.on_gui_checked_state_changed, this.on_gui_checked_state_changed)
+	Events.on_event(defines.events.on_gui_click, this.on_gui_click)
 end
 
 function getUiElement(parent, name, createIfNotExist)
@@ -121,12 +183,13 @@ function destroyUiElement(player, name)
 	element.parent[name].destroy()
 end
 
+---@param player LuaPlayer
 function init_GUI(player)
 	--print("init_GUI")
-	--TODO is called every 60 seconds!
+	--is called every 60 seconds
 
-	local ict = GetCannonTableFromForce(player.force)
-	if ict == nil or #ict == 0 and not settings.global["ion-cannon-cheat-menu"].value then
+	local cannons = IonCannonStorage.fromForce(player.force)
+	if cannons == nil or #cannons == 0 and not settings.global["ion-cannon-cheat-menu"].value then
 		local frame = player.gui.left["ion-cannon-stats"]
 		if frame then frame.destroy() end
 		if player.gui.top["ion-cannon-button"] then player.gui.top["ion-cannon-button"].destroy() end
@@ -136,7 +199,7 @@ function init_GUI(player)
 	end
 end
 
-local createAdminPanel =function(parent)
+function this.createAdminPanel(parent)
 	-- parent: frame
 	local adminPanel = parent.add{type = "table", column_count = 3, name = "ion-cannon-admin-panel-table"}
 
@@ -160,79 +223,99 @@ local createAdminPanel =function(parent)
 	return adminPanel
 end
 
+---@param player LuaPlayer
 function open_GUI(player)
 	local frame = player.gui.left["ion-cannon-stats"]
 	local force = player.force
 	local forceName = force.name
+	local surfaceName = getOrbitingSurfaceName(player)
 	local player_index = player.index
-	if frame and storage.goToFull[player_index] then
-		frame.destroy()
+	if frame and storage.goToFull[player_index] then frame.destroy() return end
+
+	if storage.goToFull[player_index] and IonCannonStorage.count(force) < 40 then
+		storage.goToFull[player_index] = false
+		if frame then frame.destroy() end
+		frame = player.gui.left.add{type = "frame", name = "ion-cannon-stats", direction = "vertical"}
+		frame.add{type = "label", caption = {"ion-cannon-details-full"}}
+		frame.add{type = "table", column_count = 2, name = "ion-cannon-table"}
+		for i = 1, IonCannonStorage.count(force) do
+			frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannon-num", i}}
+			if IonCannonStorage.fromForce(force)[i][2] == 1 then
+				frame["ion-cannon-table"].add{type = "label", caption = {"ready"}}
+			else
+				frame["ion-cannon-table"].add{type = "label", caption = {"cooldown", IonCannonStorage.fromForce(force)[i][1]}}
+			end
+		end
 	else
-		if storage.goToFull[player_index] and #GetCannonTableFromForce(force) < 40 then
-			storage.goToFull[player_index] = false
-			if frame then
-				frame.destroy()
+		storage.goToFull[player_index] = true
+		if frame then frame.destroy() end
+		frame = player.gui.left.add{type = "frame", name = "ion-cannon-stats", direction = "vertical"}
+		frame.add{type = "label", caption = {"ion-cannon-details-compact"}}
+		if player.admin then
+			frame.add{type = "table", column_count = 2, name = "ion-cannon-admin-panel-header"}
+			frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-admin-panel-show"}}
+			frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-1], name = "show"}
+			-- frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-menu-show"}}
+			--TODO WTF? if global.permissions[-2] == nil then global.permissions[-2] = settings.global["ion-cannon-auto-targeting"].value end
+			-- frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = global.permissions[-2], name = "cheats"}
+			if frame["ion-cannon-admin-panel-header"]["show"].state then
+				this.createAdminPanel(frame)
 			end
-			frame = player.gui.left.add{type = "frame", name = "ion-cannon-stats", direction = "vertical"}
-			frame.add{type = "label", caption = {"ion-cannon-details-full"}}
-			frame.add{type = "table", column_count = 2, name = "ion-cannon-table"}
-			for i = 1, #GetCannonTableFromForce(force) do
-				frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannon-num", i}}
-				if GetCannonTableFromForce(force)[i][2] == 1 then
-					frame["ion-cannon-table"].add{type = "label", caption = {"ready"}}
-				else
-					frame["ion-cannon-table"].add{type = "label", caption = {"cooldown", GetCannonTableFromForce(force)[i][1]}}
-				end
+			-- if frame["ion-cannon-admin-panel-header"]["cheats"].state then
+			if settings.global["ion-cannon-cheat-menu"].value then
+				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-one"}}
+				frame["ion-cannon-admin-panel-header"].add{type = "button", name = "add-ion-cannon", style = "ion-cannon-button-style"}
+				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-five"}}
+				frame["ion-cannon-admin-panel-header"].add{type = "button", name = "add-five-ion-cannon", style = "ion-cannon-button-style"}
+				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-remove-one"}}
+				frame["ion-cannon-admin-panel-header"].add{type = "button", name = "remove-ion-cannon", style = "ion-cannon-remove-button-style"}
+				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-recharge-all"}}
+				frame["ion-cannon-admin-panel-header"].add{type = "button", name = "recharge-ion-cannon", style = "ion-cannon-button-style"}
 			end
-		else
-			storage.goToFull[player_index] = true
-			if frame then
-				frame.destroy()
-			end
-			frame = player.gui.left.add{type = "frame", name = "ion-cannon-stats", direction = "vertical"}
-			frame.add{type = "label", caption = {"ion-cannon-details-compact"}}
-			if player.admin then
-				frame.add{type = "table", column_count = 2, name = "ion-cannon-admin-panel-header"}
-				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-admin-panel-show"}}
-				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-1], name = "show"}
-				-- frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-menu-show"}}
-				--TODO WTF? if global.permissions[-2] == nil then global.permissions[-2] = settings.global["ion-cannon-auto-targeting"].value end
-				-- frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = global.permissions[-2], name = "cheats"}
-				if frame["ion-cannon-admin-panel-header"]["show"].state then
-					createAdminPanel(frame)
-				end
-				-- if frame["ion-cannon-admin-panel-header"]["cheats"].state then
-				if settings.global["ion-cannon-cheat-menu"].value then
-					frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-one"}}
-					frame["ion-cannon-admin-panel-header"].add{type = "button", name = "add-ion-cannon", style = "ion-cannon-button-style"}
-					frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-five"}}
-					frame["ion-cannon-admin-panel-header"].add{type = "button", name = "add-five-ion-cannon", style = "ion-cannon-button-style"}
-					frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-remove-one"}}
-					frame["ion-cannon-admin-panel-header"].add{type = "button", name = "remove-ion-cannon", style = "ion-cannon-remove-button-style"}
-					frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"ion-cannon-cheat-recharge-all"}}
-					frame["ion-cannon-admin-panel-header"].add{type = "button", name = "recharge-ion-cannon", style = "ion-cannon-button-style"}
-				end
-				frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"mod-setting-name.ion-cannon-auto-targeting"}}
-				frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-2], name = "ion-cannon-auto-target-enabled"}
-			end
-			frame.add{type = "table", column_count = 1, name = "ion-cannon-table"}
-			frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannons-in-orbit", player.surface.name, #GetCannonTableFromForce(force)}}
-			frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannons-ready", countIonCannonsReady(force, player.surface)}}
-			if countIonCannonsReady(force, player.surface) < #GetCannonTableFromForce(force) then
-				frame["ion-cannon-table"].add{type = "label", caption = {"time-until-next-ready", timeUntilNextReady(force, player.surface)}}
-			end
+			frame["ion-cannon-admin-panel-header"].add{type = "label", caption = {"mod-setting-name.ion-cannon-auto-targeting"}}
+			frame["ion-cannon-admin-panel-header"].add{type = "checkbox", state = storage.permissions[-2], name = "ion-cannon-auto-target-enabled"}
+		end
+		frame.add{type = "table", column_count = 1, name = "ion-cannon-table"}
+		frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannons-in-orbit", surfaceName, IonCannonStorage.count(force)}}
+		frame["ion-cannon-table"].add{type = "label", caption = {"ion-cannons-ready", IonCannonStorage.countIonCannonsReady(force, surfaceName)}}
+		if IonCannonStorage.countIonCannonsReady(force, surfaceName) < IonCannonStorage.count(force) then
+			frame["ion-cannon-table"].add{type = "label", caption = {"time-until-next-ready", IonCannon.timeUntilNextReady(force, surfaceName)}}
 		end
 	end
 end
 
+---@param player LuaPlayer
 function update_GUI(player)
 	init_GUI(player)
+
+	local button = findUiElementByName(player, "ion-cannon-button", false)
 	local statsFrame = player.gui.left["ion-cannon-stats"]
-	if not statsFrame then return end
+	if not statsFrame and not button then return end
 
 	local force = player.force
 	--local forceName = force.name
 	local playerIndex = player.index
+	local surfaceName = getOrbitingSurfaceName(player)
+
+	if button then
+		local numReadyCannons = IonCannon.countReady(force, surfaceName)
+		local numCannons = IonCannon.countOrbitingIonCannons (force, surfaceName)
+		if #button.children == 0 then
+			createButtonContent(button)
+		end
+		button.children[1].children[1].children[1].caption = tostring(numCannons)
+		if numReadyCannons > 0 then
+			button.children[1].children[2].children[1].caption = tostring(numReadyCannons)
+			button.children[1].children[2].children[1].style.font_color ={r=0.25,g=1,b=0.25}
+		else
+			local timeUntilNextReady = IonCannon.timeUntilNextReady(force, surfaceName)
+			button.children[1].children[2].children[1].caption = tostring(timeUntilNextReady)
+			button.children[1].children[2].children[1].style.font_color ={r=1,g=0.25,b=0.25}
+		end
+
+	end
+
+	if not statsFrame then return end
 
 	local cannonTable = statsFrame["ion-cannon-table"]
 	if cannonTable then cannonTable.destroy() end
@@ -248,34 +331,48 @@ function update_GUI(player)
 		--cannonTable.add{type = "label", caption = {"ion-cannons-in-orbit", #GetCannonTableFromForce(force)}}
 		local numCannons = 0
 		if false then
-			numCannons =  #GetCannonTableFromForce(force)
+			numCannons =  IonCannonStorage.count(force)
 		else
-			for i = 1, #GetCannonTableFromForce(force) do
-				if player.surface.name == GetCannonTableFromForce(force)[i][3] then numCannons=numCannons+1 end
+			for i = 1, IonCannonStorage.count(force) do
+				if surfaceName == IonCannonStorage.fromForce(force)[i][3] then numCannons=numCannons+1 end
 			end
 		end
 
-		cannonTable.add{type = "label", caption = {"ion-cannons-in-orbit", player.surface.name, numCannons}}
-		cannonTable.add{type = "label", caption = {"ion-cannons-ready", countIonCannonsReady(force, player.surface)}}
-		if countIonCannonsReady(force, player.surface) < countOrbitingIonCannons(force, player.surface) then
-			cannonTable.add{type = "label", caption = {"time-until-next-ready", timeUntilNextReady(force, player.surface)}}
+		cannonTable.add{type = "label", caption = {"ion-cannons-in-orbit", surfaceName, numCannons}}
+		cannonTable.add{type = "label", caption = {"ion-cannons-ready", IonCannonStorage.countIonCannonsReady(force, surfaceName)}}
+		if IonCannonStorage.countIonCannonsReady(force, surfaceName) < IonCannon.countOrbitingIonCannons(force, surfaceName) then
+			cannonTable.add{type = "label", caption = {"time-until-next-ready", IonCannon.timeUntilNextReady(force, surfaceName)}}
 		end
 	end
 end
 
+---@param player LuaPlayer
 function createFullCannonTableFiltered(player)
 	local statsFrame = player.gui.left["ion-cannon-stats"]
 	local force = player.force
 	local cannonTable = statsFrame.add{type = "table", column_count = 2, name = "ion-cannon-table"}
-	for i = 1, #GetCannonTableFromForce(force) do
-		if player.surface.name == GetCannonTableFromForce(force)[i][3] then
+	local cannons = IonCannonStorage.fromForce(force)
+	local surfaceName = getOrbitingSurfaceName(player)
+
+	for i = 1, #cannons do
+		if surfaceName == cannons[i][3] then
 			cannonTable.add{type = "label", caption = {"ion-cannon-num", i}}
-			if GetCannonTableFromForce(force)[i][2] == 1 then
-				cannonTable.add{type = "label", caption = {"ready"}}
-			else
-				cannonTable.add{type = "label", caption = {"cooldown", GetCannonTableFromForce(force)[i][1]}}
-			end
+			if cannons[i][2] == 1 then cannonTable.add{type = "label", caption = {"ready"}}
+			else cannonTable.add{type = "label", caption = {"cooldown", cannons[i][1]}} end
 		end
 	end
 	return cannonTable
 end
+
+function ModGui.reset(player)
+
+end
+
+Events.on_event("ion-cannon-hotkey", function(event)
+	local player = game.players[event.player_index]
+	if storage.IonCannonLaunched or player.admin then
+		open_GUI(player)
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------
+return ModGui

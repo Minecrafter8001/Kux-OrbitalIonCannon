@@ -3,9 +3,12 @@ KuxCoreLib = require("__Kux-CoreLib__/lib/init") --[[@as KuxCoreLib]]
 ---@class Mod : KuxCoreLib.ModInfo Mod Kux-OrbitalIonCannon
 local mod = KuxCoreLib.ModInfo.new{separator="-"}
 
---mod.name = "Kux-OrbitalIonCannon"
---mod.path="__"..mod.name.."__/"
---mod.prefix=mod.name.."-"
+--- all registered modules
+---@type {[string]:(false|{[string]:any})}
+mod.modules = {
+	IonTargeter = false,
+	IonCannon = false,
+}
 
 ---technology names
 mod.tech = {
@@ -22,6 +25,12 @@ mod.recipe = {
 	targeter = "ion-cannon-targeter",
 	cannon_mk2 = "orbital-ion-cannon-mk2"
 }
+
+_G.trace = KuxCoreLib.Trace
+trace.prefix_sign = "🛰️"
+trace.sign_color = trace.colors.purple
+trace.text_color = trace.colors.lightpurple
+trace.background_color = trace.colors.gray_32
 
 mod:protect()
 _G.mod = mod

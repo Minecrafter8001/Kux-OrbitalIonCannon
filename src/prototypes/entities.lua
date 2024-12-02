@@ -59,123 +59,132 @@ end
 
 ---------------------------------------------------------------------------------------------------
 --TODO rename "crosshairs" to "orbital-ion-cannon-projectile"
-data:extend({
-	{
-		type = "projectile",
-		name = "crosshairs",
-		flags = {"not-on-map"},
-		acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
-		action = {
-			{
-				type = "direct",
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						fx.create_entity{"huge-explosion"},
-						fx.create_entity{"ion-cannon-beam"},
-						fx.create_entity{"enormous-scorchmark",check_buildability = true},
-						fx.create_entity{"ion-cannon-explosion", trigger_created_entity = true },
-						{ type = "show-explosion-on-chart", scale = settings.startup["ion-cannon-radius"].value / 20 },
+
+local function create_projectile(name, radius, damageFactor)
+	data:extend({
+		{
+			type = "projectile",
+			name = name, -- "crosshairs"
+			flags = {"not-on-map"},
+			acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
+			action = {
+				{
+					type = "direct",
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							fx.create_entity{"huge-explosion"},
+							fx.create_entity{"ion-cannon-beam"},
+							fx.create_entity{"enormous-scorchmark",check_buildability = true},
+							fx.create_entity{"ion-cannon-explosion", trigger_created_entity = true },
+							{ type = "show-explosion-on-chart", scale = radius / 20 },
+						}
+					}
+				},
+				{
+					type = "area",
+					radius = radius * 0.8,
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							{ type = "create-fire", entity_name = "fire-flame" },
+							{ type = "create-fire", entity_name = "fire-flame-on-tree" }
+						}
+					}
+				},
+				{
+					type = "area",
+					radius = radius * 0.8,
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value * damageFactor },
+							fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value * damageFactor}
+						}
+					}
+				},
+				{
+					type = "area",
+					radius = radius,
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							{ type = "create-sticker", sticker = "fire-sticker" },
+							{ type = "create-fire", entity_name = "fire-flame" },
+							{ type = "create-fire", entity_name = "fire-flame-on-tree" }
+						}
 					}
 				}
 			},
-			{
-				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						{ type = "create-fire", entity_name = "fire-flame" },
-						{ type = "create-fire", entity_name = "fire-flame-on-tree" }
-					}
-				}
+			light = {intensity = 0, size = 0},
+			animation = {
+				filename = "__core__/graphics/empty.png",
+				priority = "low",
+				width = 1,
+				height = 1,
+				frame_count = 1
 			},
-			{
-				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value },
-						fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value}
-					}
-				}
-			},
-			{
-				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value,
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						{ type = "create-sticker", sticker = "fire-sticker" },
-						{ type = "create-fire", entity_name = "fire-flame" },
-						{ type = "create-fire", entity_name = "fire-flame-on-tree" }
-					}
-				}
+			shadow = {
+				filename = "__core__/graphics/empty.png",
+				priority = "low",
+				width = 1,
+				height = 1,
+				frame_count = 1
 			}
 		},
-		light = {intensity = 0, size = 0},
-		animation = {
-			filename = "__core__/graphics/empty.png",
-			priority = "low",
-			width = 1,
-			height = 1,
-			frame_count = 1
-		},
-		shadow = {
-			filename = "__core__/graphics/empty.png",
-			priority = "low",
-			width = 1,
-			height = 1,
-			frame_count = 1
-		}
-	},
 
-	{
-		type = "projectile",
-		name = "dummy-crosshairs",
-		flags = {"not-on-map"},
-		acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
-		action = {
-			{
-				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value * 0.8,
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value},
-						fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value}
+		{
+			type = "projectile",
+			name = "dummy-"..name,
+			flags = {"not-on-map"},
+			acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
+			action = {
+				{
+					type = "area",
+					radius = radius * 0.8,
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value * damageFactor},
+							fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value * damageFactor}
+						}
+					}
+				},
+				{
+					type = "area",
+					radius = radius --[[@as double]],
+					action_delivery = {
+						type = "instant",
+						target_effects = {
+							{ type = "create-fire", entity_name = "fire-flame" }
+						}
 					}
 				}
 			},
-			{
-				type = "area",
-				radius = settings.startup["ion-cannon-radius"].value --[[@as double]],
-				action_delivery = {
-					type = "instant",
-					target_effects = {
-						{ type = "create-fire", entity_name = "fire-flame" }
-					}
-				}
+			light = {intensity = 0, size = 0},
+			animation = {
+				filename = "__core__/graphics/empty.png",
+				priority = "low",
+				width = 1,
+				height = 1,
+				frame_count = 1
+			},
+			shadow = {
+				filename = "__core__/graphics/empty.png",
+				priority = "low",
+				width = 1,
+				height = 1,
+				frame_count = 1
 			}
-		},
-		light = {intensity = 0, size = 0},
-		animation = {
-			filename = "__core__/graphics/empty.png",
-			priority = "low",
-			width = 1,
-			height = 1,
-			frame_count = 1
-		},
-		shadow = {
-			filename = "__core__/graphics/empty.png",
-			priority = "low",
-			width = 1,
-			height = 1,
-			frame_count = 1
 		}
-	},
+	})
+end
+local radius = settings.startup["ion-cannon-radius"].value --[[@as double]]
+create_projectile("crosshairs", radius, 1.0)
+create_projectile("crosshairs-mk2", radius *1.5, 10)
 
+
+data:extend{
 	{
 		type = "sound",
 		name = "ion-cannon-klaxon",
@@ -236,7 +245,7 @@ data:extend({
 			frame_count = 25,
 			animation_speed = 0.2,
 			line_length = 5,
-			scale = 5 * (settings.startup["ion-cannon-radius"].value / 15),
+			scale = 5 * (radius / 15),
 		},
 		slow_down_factor = 0,
 		affected_by_wind = false,
@@ -286,7 +295,7 @@ data:extend({
 				animation_speed = 0.5
 			},
 		},
-		light = {intensity = 2, size = settings.startup["ion-cannon-radius"].value * 3},
+		light = {intensity = 2, size = radius * 3},
 		sound = {
 			{ filename = mod.path.."sound/OrbitalIonCannon.ogg", volume = 1.4 },
 		},
@@ -310,12 +319,7 @@ data:extend({
 			}
 		}
 	}
-})
-local mk2 = util.table.deepcopy(data.raw["projectile"]["crosshairs"])
-mk2.name = "crosshairs-mk2"
-mk2.action[3].action_delivery.target_effects[1].damage.amount = mk2.action[3].action_delivery.target_effects[1].damage.amount * 10
-mk2.action[3].action_delivery.target_effects[2].damage.amount = mk2.action[3].action_delivery.target_effects[2].damage.amount * 10
-data:extend({mk2})
+}
 
 
 local yuge_crater = util.table.deepcopy(data.raw["corpse"]["big-scorchmark"])

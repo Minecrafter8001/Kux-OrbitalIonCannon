@@ -1,27 +1,10 @@
-require "modules.ion-cannon-table"
+require "modules/IonCannonStorage"
 
-function countIonCannonsReady(force, surface) -- TODO check all callers
-	local surfaceName = nil
-	if type(surface) == "string" then surfaceName = surface else surfaceName = surface.name end
-	local ionCannonsReady = 0
-	if GetCannonTableFromForce(force) then
-		for i, cooldown in pairs(GetCannonTableFromForce(force)) do
-			if cooldown[2] == 1 and cooldown[3] == surfaceName then
-				ionCannonsReady = ionCannonsReady + 1
-			end
-		end
-	end
-	return ionCannonsReady
-end
-
-function timeUntilNextReady(force, surface) -- TODO check all callers
-	local surfaceName = nil
-	if type(surface) == "string" then surfaceName = surface else surfaceName = surface.name end
-	local shortestCooldown = settings.global["ion-cannon-cooldown-seconds"].value
-	for i, cooldown in pairs(GetCannonTableFromForce(force)) do
-		if cooldown[1] < shortestCooldown and cooldown[2] == 0 and cooldown[3] == surfaceName then
-			shortestCooldown = cooldown[1]
-		end
-	end
-	return shortestCooldown
+---@param sound string
+---@param player LuaPlayer
+--TODO add debounce to prevent overlapping sounds
+function playSoundForPlayer(sound, player)
+	if not settings.get_player_settings(player)["ion-cannon-play-voices"].value then return end
+	local voice = settings.get_player_settings(player)["ion-cannon-voice-style"].value
+	player.play_sound({path = sound .. "-" .. voice, volume_modifier = settings.get_player_settings(player)["ion-cannon-voice-volume"].value / 100})
 end
