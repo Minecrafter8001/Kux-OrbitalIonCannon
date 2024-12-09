@@ -52,6 +52,7 @@ ion_cannon_targeter.flags = {--[["placeable-off-grid",]] "not-on-map"} --"placea
 ion_cannon_targeter.collision_mask = {layers ={}}
 ion_cannon_targeter.is_military_target = false
 ion_cannon_targeter.fast_replaceable_group=nil
+ion_cannon_targeter.next_upgrade = nil
 ion_cannon_targeter.max_health = 1
 ion_cannon_targeter.inventory_size = 0
 ion_cannon_targeter.collision_box = {{0, 0}, {0, 0}}

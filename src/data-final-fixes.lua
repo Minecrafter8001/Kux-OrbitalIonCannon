@@ -12,4 +12,6 @@ if mods["5dim_core"] then
 	data.raw["ammo-turret"]["ion-cannon-targeter-mk2"].next_upgrade = nil
 	data.raw["radar"]["orbital-ion-cannon"].next_upgrade = nil
 	data.raw["radar"]["orbital-ion-cannon"].fast_replaceable_group = nil
+	data.raw["radar"]["orbital-ion-cannon-mk2"].next_upgrade = nil
+	data.raw["radar"]["orbital-ion-cannon-mk2"].fast_replaceable_group = nil
 end

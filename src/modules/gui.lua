@@ -302,7 +302,6 @@ function update_GUI(player)
 			button.children[1].children[2].children[1].caption = tostring(timeUntilNextReady)
 			button.children[1].children[2].children[1].style.font_color ={r=1,g=0.25,b=0.25}
 		end
-
 	end
 
 	if not statsFrame then return end

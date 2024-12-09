@@ -13,6 +13,7 @@ entity.max_distance_of_sector_revealed = 0
 entity.max_distance_of_nearby_sector_revealed = 0
 entity.minable = {mining_time = 0.1, result = "radar"}
 entity.fast_replaceable_group = nil
+entity.next_upgrade = nil
 if settings.startup["ion-cannon-1x1-controler"].value ==true then
 	entity.collision_box = {{-0.45, -0.45}, {0.45, 0.45}}
 	entity.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}

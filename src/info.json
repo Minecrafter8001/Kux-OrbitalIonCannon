@@ -1,13 +1,13 @@
 {
 	"name": "Kux-OrbitalIonCannon",
-	"version": "3.8.1",
+	"version": "3.8.2",
 	"factorio_version": "2.0",
 	"title": "Orbital Ion Cannon (Space Edition)",
 	"author": "kuxynator",
 	"homepage": "",
 	"dependencies": [
 		"base >= 2.0.7",
-		"Kux-CoreLib >= 3.15.2",
+		"Kux-CoreLib >= 3.15.3",
 			"(?) bobwarfare",
 			"(?) bobpower",
 			"(?) bobtech",
@@ -16,8 +16,6 @@
 			"(?) RampantArsenal",
 			"(?) space-exploration",
 			"(?) Krastorio2",
-			"(?) 5dim_compatibility",
-
 		"! Orbital Ion Cannon"
 	],
 	"description": "When you need to call down the thunder to deal with those pesky biters, launch a rocket with an ion cannon into orbit and show the bugs who's boss.\r\nRepublishing Supercheese's Orbital Ion Cannon 1.8.2\r\nOriginal Homepage: http://www.factorioforums.com/forum/viewtopic.php?f=93&t=17910"
