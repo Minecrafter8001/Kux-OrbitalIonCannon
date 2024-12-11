@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.4
+  Bugfixes:
+    - fix area targeter for the vanilla version
+---------------------------------------------------------------------------------------------------
 Version: 3.8.3
   Bugfixes:
     - fix orbital-ion-canon item for the vanilla version

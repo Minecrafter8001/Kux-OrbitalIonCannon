@@ -177,7 +177,7 @@ function IonCannon.target(force, position, surface, player)
 		table.insert(storage.markers, {marker, current_tick + settings.global["ion-cannon-chart-tag-duration"].value})
 		local CrosshairsPosition = position
 		CrosshairsPosition.y = CrosshairsPosition.y - 20
-		local projectile = force.technologies[mod.tech.cannon_mk2].researched and "crosshairs-mk2" or "crosshairs"
+		local projectile = force.technologies[mod.tech.cannon_mk2] and force.technologies[mod.tech.cannon_mk2].researched and "crosshairs-mk2" or "crosshairs"
 		surface.create_entity({name = projectile, target = target, force = force, position = CrosshairsPosition, speed = 0})
 		for i, player in pairs(game.connected_players) do
 			if settings.get_player_settings(player)["ion-cannon-play-klaxon"].value and storage.klaxonTick < current_tick then
@@ -239,7 +239,7 @@ function this.on_built(e)
 	if not e.platform then return end
 	local force = e.platform.force
 	local isMk2Editity = e.entity.name == "orbital-ion-cannon-mk2"
-	local isMk2Tech = force.technologies[mod.tech.cannon_mk2_upgrade].researched
+	local isMk2Tech = force.technologies[mod.tech.cannon_mk2_upgrade] and force.technologies[mod.tech.cannon_mk2_upgrade].researched
 	local result = (isMk2Editity and isMk2Tech) or (not isMk2Editity and not isMk2Tech)
 	local isPlanet = e.platform.space_location and e.platform.space_location.type == "planet"
 	if isPlanet and result then
@@ -257,7 +257,7 @@ function IonCannon.getRadius(force)
 	local radius = settings.startup["ion-cannon-radius"].value
 	if(not force) then return radius end
 	local force = getForce(force)
-	if force.technologies[mod.tech.cannon_mk2_upgrade].researched then
+	if force.technologies[mod.tech.cannon_mk2_upgrade] and force.technologies[mod.tech.cannon_mk2_upgrade].researched then
 		--TODO: configuration
 		--radius = settings.startup["ion-cannon-radius-mk2"].value
 		radius = radius *1.5
