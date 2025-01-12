@@ -17,6 +17,10 @@
 			{
 				"name": "Debug-X",
 				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug-X\\bin\\x64\\factorio.exe"
+			},
+			{
+				"name": "OIC Vanilla",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\ion-cannon-vanilla\\bin\\x64\\factorio.exe"
 			}
 		],
 		"Lua.workspace.userThirdParty": [

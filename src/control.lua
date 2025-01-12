@@ -161,17 +161,31 @@ function this.on_rocket_launched(e)
 	--TODO: run only only if space_travel is false
 	print("on_rocket_launched")
 	local force = e.rocket.force
-	local inv = e.rocket.get_main_inventory()
-	if inv then
-		for i=1,inv.get_item_count() do
-			print("item["..tostring(i).."] = "..tostring(inv[i]))
+
+	-- no valid inventories for the rocket!
+	-- for inventory_name, inventory_key in pairs(defines.inventory) do ..
+
+	--[[
+	for inventory_name, inventory_key in pairs(defines.inventory) do
+		inv = e.rocket_silo.get_inventory(inventory_key)
+		if inv then
+			print("inventory["..tostring(inventory_name).."]")
+			for i=1,#inv do
+				print("  item["..tostring(i).."] = "..tostring(inv[i]))
+			end
 		end
 	end
+	]]
 
-	if e.rocket.get_item_count("orbital-ion-cannon") > 0 then
-		print("orbital-ion-cannon found in rocket")
+	if e.rocket.cargo_pod and e.rocket.cargo_pod.get_item_count("orbital-ion-cannon") > 0 then
+		-- only vanilla (with space-age activated cargo_pod is nil)
+		print("ion-cannon-targeter found in rocket")
 		IonCannon.install(force, e.rocket_silo.surface)
+		local inv = e.rocket.cargo_pod.get_inventory(defines.inventory.cargo_unit)
+		inv.remove({name = "orbital-ion-cannon", count = 1})
+		return
 	end
+
 end
 
 --- @param e EventData.on_pre_build
@@ -252,6 +266,9 @@ commands.add_command("ion-cannon", {"command-help.ion-cannon"}, function(event)
 		elseif event.parameter == "research" then
 			player.print("Researching Ion Cannon")
 			player.force.technologies["orbital-ion-cannon"].research_recursive()
+		elseif event.parameter == "research auto-targeting" then
+			player.print("Researching Ion Cannon")
+			player.force.technologies["auto-targeting"].research_recursive()
 		else
 			player.print("Unknown command "..event.parameter)
 		end

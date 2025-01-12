@@ -1,6 +1,12 @@
 local Area =  require("__Kux-CoreLib__/stdlib/area/area") -- required for Chunk
 local Chunk = require("__Kux-CoreLib__/stdlib/area/chunk")
 local Events = KuxCoreLib.Events
+
+---@class AutoTargeter
+AutoTargeter = {}
+---@class AutoTargeter.private
+local this = {}
+
 require "modules/tools"
 require "modules/IonCannonStorage"
 ---------------------------------------------------------------------------------------------------
@@ -56,11 +62,13 @@ local processQueue = function ()
 	end
 end
 
+---comments
+---@param e EventData.on_sector_scanned
 --- Called when the radar finishes scanning a sector. Can be filtered for the radar using
 -- radar :: LuaEntity: The radar that did the scanning.
 -- chunk_position :: ChunkPosition: The chunk scanned.
 -- area :: BoundingBox: Area of the scanned chunk.
-Events.on_event(defines.events.on_sector_scanned, function(event)
+function this.on_sector_scanned(e)
 	--print("on_sector_scanned",serpent.line(event.chunk_position), serpent.line(event.area))
 	if IonCannonStorage.countQueue() > 0 then processQueue(); end
 
@@ -70,16 +78,21 @@ Events.on_event(defines.events.on_sector_scanned, function(event)
 	--local c = IonCannonStorage.countIonCannonsReady(event.radar.force, event.radar.surface)
 	--print(p,t,s,c)
 	if not storage.permissions[-2] then return end
-	local radar = event.radar
+	local radar = e.radar
 	local force = radar.force
 	if not force.technologies["auto-targeting"].researched then return end
 	if IonCannonStorage.countIonCannonsReady(force, radar.surface) <= settings.global["ion-cannon-min-cannons-ready"].value then return end
-	local target = findNestNear(radar, event.chunk_position)
+	local target = findNestNear(radar, e.chunk_position)
 	if not target then return end
 	local fired = IonCannon.target(force, target.position, radar.surface)
 	if not fired then return end
 	alertCannonFired(force,target,{"auto-target-designated", radar.backer_name, target.position.x, target.position.y})
-end)
+end
+
+
+if prototypes.custom_event.script_raised_sector_scanned then
+	Events.on_event(prototypes.custom_event.script_raised_sector_scanned.event_id, this.on_sector_scanned)
+end
 
 --- Called when a biter migration builds a base.
 -- entity :: LuaEntity: The built entity.

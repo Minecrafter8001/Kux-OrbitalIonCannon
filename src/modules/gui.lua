@@ -109,7 +109,7 @@ function this.on_gui_click(e)
 		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return
 	elseif name == "add-five-ion-cannon" then
-		surfaceName = IonCannon.add(force, surfaceName)
+		surfaceName = IonCannon.add(force, player.surface)
 		IonCannon.add(force, surfaceName)
 		IonCannon.add(force, surfaceName)
 		IonCannon.add(force, surfaceName)
@@ -123,16 +123,16 @@ function this.on_gui_click(e)
 		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return
 	elseif name == "remove-ion-cannon" then
-		local cannons = IonCannonStorage.fromForce(force)
-		if cannons and #cannons > 0 then
-			table.remove(cannons)
-			for i, player in pairs(force.connected_players) do
-				update_GUI(player)
+		local cannons = IonCannonStorage.fromForce(force) or {}
+		for _, cannon in ipairs(cannons) do
+			if cannon[3] == player.surface.name then
+				table.remove(cannons)
+				for i, player in pairs(force.connected_players) do update_GUI(player) end
+				force.print({"ion-cannon-removed"})
+				return
 			end
-			force.print({"ion-cannon-removed"})
-		else
-			player.print({"no-ion-cannons"})
 		end
+		player.print({"no-ion-cannons"})
 		return
 	elseif name == "recharge-ion-cannon" then
 		IonCannon.ReduceIonCannonCooldowns(settings.global["ion-cannon-cooldown-seconds"].value);

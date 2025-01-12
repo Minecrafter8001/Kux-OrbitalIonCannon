@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.6
+  Features:
+    - add support for script_raised_sector_scanned (custom event)
+  Bugfixes:
+    - [Vanilla] Fix that cannon is not found in rocket
+---------------------------------------------------------------------------------------------------
+Version: 3.8.5
+  Bugfixes:
+    - cheat "remove one ion cannon" now takes into account the currently viewed surface
+---------------------------------------------------------------------------------------------------
 Version: 3.8.4
   Bugfixes:
     - fix area targeter for the vanilla version
