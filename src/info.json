@@ -1,12 +1,12 @@
 {
 	"name": "Kux-OrbitalIonCannon",
-	"version": "3.8.6",
+	"version": "3.8.7",
 	"factorio_version": "2.0",
 	"title": "Orbital Ion Cannon (Space Edition)",
 	"author": "kuxynator",
 	"homepage": "",
 	"dependencies": [
-		"base >= 2.0.30",
+		"base >= 2.0",
 		"Kux-CoreLib >= 3.15.5",
 			"(?) bobwarfare",
 			"(?) bobpower",

@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.7
+  Bugfixes:
+    - Fix auto-targeting bug from version 3.8.6
+    - Fix friendly fire if turrets/unit-spawner are in the same force as the radar
+    - -> Cheese's Concentrated Solar mod is using turrets as solarpanels. This caused the ion cannon to fire on the turrets.
+---------------------------------------------------------------------------------------------------
 Version: 3.8.6
   Features:
     - add support for script_raised_sector_scanned (custom event)

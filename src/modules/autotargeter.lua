@@ -14,11 +14,17 @@ require "modules/IonCannonStorage"
 function findNestNear(entity, chunk_position)
 	local search = Chunk.to_area(chunk_position)
 	local spawners = entity.surface.find_entities_filtered{area = search, type = "unit-spawner", limit = 3} --limit is arbitrarily set for testing, can/should be reduced later if it doesn't cause any undesirable behavior
+	for _, dest in ipairs(spawners) do
+		if dest.force.name == entity.force.name then spawners = {}; break end
+	end
 	if #spawners > 0 then
 		return spawners[math.random(#spawners)]
 	end
 	if settings.global["ion-cannon-target-worms"].value then
 		local worms = entity.surface.find_entities_filtered{area = search, type = "turret", limit = 6, collision_mask = "player"} --limit is arbitrarily set for testing, can/should be reduced later if it doesn't cause any undesirable behavior
+		for _, dest in ipairs(worms) do
+			if dest.force.name == entity.force.name then worms = {}; break end
+		end
 		if #worms > 0 then
 			return worms[math.random(#worms)]
 		end
@@ -89,7 +95,7 @@ function this.on_sector_scanned(e)
 	alertCannonFired(force,target,{"auto-target-designated", radar.backer_name, target.position.x, target.position.y})
 end
 
-
+Events.on_event(defines.events.on_sector_scanned, this.on_sector_scanned)
 if prototypes.custom_event.script_raised_sector_scanned then
 	Events.on_event(prototypes.custom_event.script_raised_sector_scanned.event_id, this.on_sector_scanned)
 end
