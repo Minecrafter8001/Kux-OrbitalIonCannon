@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.8.8
+  Features:
+    - Add an option (per player) to choose where the Klaxon is audible
+    - Add electric damage to the ion cannon MK2
+  Changes:
+    - Klaxon is now allways played on the destination position (independent of user settings) But you only hear it when you are about to be grilled (10 tiles radius)
+  Bugfixes:
+---------------------------------------------------------------------------------------------------
 Version: 3.8.7
   Bugfixes:
     - Fix auto-targeting bug from version 3.8.6

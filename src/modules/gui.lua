@@ -104,7 +104,7 @@ function this.on_gui_click(e)
 		Control.enableNthTick60()
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
-			playSoundForPlayer("ion-cannon-charging", player)
+			playSoundForPlayer(mod.defines.sound.charging, player)
 		end
 		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return
@@ -118,7 +118,7 @@ function this.on_gui_click(e)
 		Control.enableNthTick60()
 		for i, player in pairs(force.connected_players) do
 			init_GUI(player)
-			playSoundForPlayer("ion-cannon-charging", player)
+			playSoundForPlayer(mod.defines.sound.charging, player)
 		end
 		force.print({"ion-cannons-in-orbit", surfaceName, IonCannon.countOrbitingIonCannons(force, surfaceName)})
 		return

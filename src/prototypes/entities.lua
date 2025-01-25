@@ -1,3 +1,5 @@
+local extend = KuxCoreLib.PrototypeData.extend
+
 local utils = {}
 function utils.merge(common, data, final_fixes)
 	--print("merge", order_index, common, data, final_fixes)
@@ -61,12 +63,33 @@ end
 --TODO rename "crosshairs" to "orbital-ion-cannon-projectile"
 
 local function create_projectile(name, radius, damageFactor)
+	local explosion_damage, laser_damage, electric_damage = 0, 0, 0
+	do
+		local explosion1 = settings.startup["ion-cannon-explosion-damage"].value --[[@as double]]
+		local laser1     = settings.startup["ion-cannon-laser-damage"].value --[[@as double]]
+		local electric1  = settings.startup["ion-cannon-electric-damage"].value --[[@as double]]
+		if name == "crosshairs" then
+			explosion_damage = explosion1
+			laser_damage     = laser1
+			electric_damage  = 0
+		elseif name == "crosshairs-mk2" then
+			local total1 = explosion1 + laser1 + electric1
+			-- MK2 Adjust damage values proportionally
+			local total2 = (explosion1 + laser1) * damageFactor
+			explosion_damage = total2 * (explosion1 / total1)
+			laser_damage     = total2 * (laser1 / total1)
+			electric_damage  = total2 * (electric1 / total1)
+		end
+	end
+
+	local heatup_multiplier = settings.startup["ion-cannon-heatup-multiplier"].value --[[@as double]]
+
 	data:extend({
 		{
 			type = "projectile",
 			name = name, -- "crosshairs"
 			flags = {"not-on-map"},
-			acceleration = .0009 / (settings.startup["ion-cannon-heatup-multiplier"].value * settings.startup["ion-cannon-heatup-multiplier"].value),
+			acceleration = .0009 / (heatup_multiplier*heatup_multiplier),
 			action = {
 				{
 					type = "direct",
@@ -98,8 +121,9 @@ local function create_projectile(name, radius, damageFactor)
 					action_delivery = {
 						type = "instant",
 						target_effects = {
-							fx.damage{"laser"    , settings.startup["ion-cannon-laser-damage"].value * damageFactor },
-							fx.damage{"explosion", settings.startup["ion-cannon-explosion-damage"].value * damageFactor}
+							fx.damage{"laser"    , laser_damage },
+							fx.damage{"explosion", explosion_damage},
+							fx.damage{"electric", electric_damage}
 						}
 					}
 				},
@@ -185,55 +209,75 @@ if isSpaceTravel then
 	create_projectile("crosshairs-mk2", radius *1.5, 10)
 end
 
+local x = extend()
 
+--x:sound{"ion-cannon-klaxon", mod.path.."sound/Klaxon.ogg", volume = 1.0}
 data:extend{
 	{
 		type = "sound",
 		name = "ion-cannon-klaxon",
-		variations = {
-			{ filename = mod.path.."sound/Klaxon.ogg", volume = 1.0 },
-		},
-	},
+		variations = { { filename = mod.path.."sound/Klaxon.ogg", volume = 1.0 }, }
+	}
+}
 
-	{
-		type = "simple-entity",
-		name = "ion-cannon-target",
-		icon = mod.path.."graphics/crosshairs64.png",
-		icon_size = 64,
-		flags = {"placeable-off-grid", "not-on-map"},
-		max_health = 1,
-		render_layer = "air-object",
-		final_render_layer = "air-object",
-		collision_box = {{0,0}, {0,0}},
-		selection_box = {{0,0}, {0,0}},
-		resistances = {},
-		animations = {
-			{
-				filename = mod.path.."graphics/crosshairs_anim.png",
-				priority = "low",
-				width = 64,
-				height = 64,
-				frame_count = 32,
-				animation_speed = 0.35,
-				line_length = 8,
-				shift = {0, -1},
-				scale = 1,
-			}
-		},
-		-- pictures =
+local NO_ANIMATION = {
+	filename = "__core__/graphics/empty.png",
+	priority = "low",
+	width = 1,
+	height = 1,
+	frame_count = 1
+}
+
+--WIP
+data:extend{{ type = "explosion", name = "ion-cannon-klaxon-build",
+	sound = { { filename = mod.path.."sound/Klaxon.ogg", volume = 1.0 } },
+	flags = {"not-on-map"},
+	animations = {NO_ANIMATION},
+}}
+
+
+
+data:extend{ { type = "simple-entity", name = "ion-cannon-target",
+	icon = mod.path.."graphics/crosshairs64.png",
+	icon_size = 64,
+	flags = {"placeable-off-grid", "not-on-map"},
+	max_health = 1,
+	render_layer = "air-object",
+	final_render_layer = "air-object",
+	collision_box = {{0,0}, {0,0}},
+	selection_box = {{0,0}, {0,0}},
+	resistances = {},
+	animations = { {
+		filename = mod.path.."graphics/crosshairs_anim.png",
+		priority = "low",
+		width = 64,
+		height = 64,
+		frame_count = 32,
+		animation_speed = 0.35,
+		line_length = 8,
+		shift = {0, -1},
+		scale = 1,
+	} },
+	-- pictures =
+	-- {
 		-- {
-			-- {
-				-- filename = mod.path.."graphics/crosshairsEntity.png",
-				-- priority = "low",
-				-- width = 64,
-				-- height = 64,
-				-- scale = 1,
-				-- shift = {0, -1},
-				-- frame_count = 1
-			-- },
-		-- }
-	},
+			-- filename = mod.path.."graphics/crosshairsEntity.png",
+			-- priority = "low",
+			-- width = 64,
+			-- height = 64,
+			-- scale = 1,
+			-- shift = {0, -1},
+			-- frame_count = 1
+		-- },
+	-- }
 
+	-- WIP: audible up to 32 tiles away
+	-- working but does not have the expected effect. too quiet in the distance
+	-- volume: 50 no effect, max_distance: 50 no effect
+	build_sound =  { filename = mod.path.."sound/Klaxon.ogg", volume = 1 }, -- audible up to 10 tiles away, too short
+}}
+
+data:extend{
 	{
 		type = "smoke-with-trigger",
 		name = "ion-cannon-explosion",
@@ -254,8 +298,10 @@ data:extend{
 		cyclic = false,
 		duration = 60 * 5,
 		spread_duration = 10,
-	},
+	}
+}
 
+data:extend{
 	{
 		type = "smoke-with-trigger",
 		name = "ion-cannon-beam",
@@ -278,8 +324,10 @@ data:extend{
 		duration = 60 * 2,
 		fade_away_duration = 60 * 1,
 		spread_duration = 10,
-	},
+	}
+}
 
+data:extend{
 	{
 		type = "explosion",
 		name = "huge-explosion",

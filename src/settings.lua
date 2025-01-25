@@ -1,177 +1,34 @@
 require("mod")
-local extend = KuxCoreLib. PrototypeData.extend
+local extend = KuxCoreLib.SettingsData.extend
 
-data:extend({
-	-- Startup
-	{
-		type = "int-setting",
-		name = "ion-cannon-radius",
-		setting_type = "startup",
-		order = "a",
-		default_value = 25,
-		minimum_value = 2,
-		maximum_value = 50
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-heatup-multiplier",
-		setting_type = "startup",
-		order = "b",
-		default_value = 2,
-		minimum_value = 1,
-		maximum_value = 50
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-laser-damage",
-		setting_type = "startup",
-		order = "c",
-		default_value = 2500,
-		minimum_value = 1
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-explosion-damage",
-		setting_type = "startup",
-		order = "d",
-		default_value = 1000,
-		minimum_value = 1
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-flames",
-		setting_type = "startup",
-		order = "e",
-		default_value = true
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-bob-updates",
-		setting_type = "startup",
-		order = "f",
-		default_value = true
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-early-recipe",
-		setting_type = "startup",
-		order = "g",
-		default_value = false
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-1x1-controler",
-		setting_type = "startup",
-		order = "h",
-		default_value = false
-	},
-	-- Runtime (global)
-	{
-		type = "bool-setting",
-		name = "ion-cannon-auto-targeting",
-		setting_type = "runtime-global",
-		order = "a",
-		default_value = true
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-target-worms",
-		setting_type = "runtime-global",
-		order = "b",
-		default_value = true
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-auto-target-visible",
-		setting_type = "runtime-global",
-		order = "c",
-		default_value = true
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-cooldown-seconds",
-		setting_type = "runtime-global",
-		order = "d",
-		default_value = 300,
-		minimum_value = 2
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-chart-tag-duration",
-		setting_type = "runtime-global",
-		order = "e",
-		default_value = 720,
-		minimum_value = 120
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-min-cannons-ready",
-		setting_type = "runtime-global",
-		order = "f",
-		default_value = 2,
-		minimum_value = 0
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-cheat-menu",
-		setting_type = "runtime-global",
-		order = "g",
-		default_value = false
-	},
-	-- Runtime (per player)
-	{
-		type = "bool-setting",
-		name = "ion-cannon-play-voices",
-		setting_type = "runtime-per-user",
-		order = "a",
-		default_value = true
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-voice-volume",
-		setting_type = "runtime-per-user",
-		order = "aa",
-		min_value = 0,
-		default_value = 70,
-		max_value = 100,
-	},
-	{
-		type = "string-setting",
-		name = "ion-cannon-voice-style",
-		setting_type = "runtime-per-user",
-		order = "b",
-		default_value = "CommandAndConquer",
-		allowed_values = {"CommandAndConquer", "TiberianSunEVA", "TiberianSunCABAL",  "TiberianSunEVA-FR", "TiberianSunCABAL-FR"}
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-play-klaxon",
-		setting_type = "runtime-per-user",
-		order = "c",
-		default_value = true
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-klaxon-volume",
-		setting_type = "runtime-per-user",
-		order = "ca",
-		min_value = 0,
-		default_value = 70,
-		max_value = 100,
-	},
-	{
-		type = "int-setting",
-		name = "ion-cannon-ready-ticks",
-		setting_type = "runtime-per-user",
-		order = "d",
-		default_value = 360,
-		minimum_value = 1
-	},
-	{
-		type = "bool-setting",
-		name = "ion-cannon-custom-alerts",
-		setting_type = "runtime-per-user",
-		order = "e",
-		default_value = true
-	}
-})
+
+local x = extend{"startup","a",prefix=""}
+x:int{"ion-cannon-radius",25,2,50}
+x:int{"ion-cannon-heatup-multiplier",2,1,50}
+x:int{"ion-cannon-laser-damage",2500,1}
+x:int{"ion-cannon-explosion-damage",1000,1}
+x:int{"ion-cannon-electric-damage",1000,1}
+x:bool{"ion-cannon-flames",true}
+x:bool{"ion-cannon-bob-updates",true}
+x:bool{"ion-cannon-early-recipe",false}
+x:bool{"ion-cannon-1x1-controler",false}
+
+x = extend{"runtime-global","a",prefix=""}
+x:bool{"ion-cannon-auto-targeting",true}
+x:bool{"ion-cannon-target-worms",true}
+x:bool{"ion-cannon-auto-target-visible",true}
+x:int{"ion-cannon-cooldown-seconds",300,2}
+x:int{"ion-cannon-chart-tag-duration",720,120}
+x:int{"ion-cannon-min-cannons-ready",2,0}
+x:bool{"ion-cannon-cheat-menu",false}
+
+x = extend{"runtime-per-user","a",prefix=""}
+x:bool{"ion-cannon-play-voices",true}
+--x:bool{"ion-cannon-play-voices-ion-cannon-ready",true}
+x:int{"ion-cannon-voice-volume",70,0,100}
+x:string{"ion-cannon-voice-style","CommandAndConquer",{"CommandAndConquer","TiberianSunEVA","TiberianSunCABAL","TiberianSunEVA-FR","TiberianSunCABAL-FR"}}
+x:string{"ion-cannon-play-klaxon","local",{"none","local","surface","global"}}
+--x:int_const{"ion-cannon-play-klaxon-locaal-distance",32}
+x:int{"ion-cannon-klaxon-volume",70,0,100}
+x:int{"ion-cannon-ready-ticks",360,1}
+x:bool{"ion-cannon-custom-alerts",true}

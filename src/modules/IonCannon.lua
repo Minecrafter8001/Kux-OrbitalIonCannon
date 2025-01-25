@@ -165,7 +165,7 @@ function IonCannon.target(force, position, surface, player)
 	if cannonNum == 0 then
 		if player then
 			player.print({"unable-to-fire"})
-			playSoundForPlayer("unable-to-comply", player)
+			playSoundForPlayer(mod.defines.sound.unable_to_comply, player)
 		end
 		return false
 	else
@@ -180,10 +180,28 @@ function IonCannon.target(force, position, surface, player)
 		local projectile = force.technologies[mod.tech.cannon_mk2] and force.technologies[mod.tech.cannon_mk2].researched and "crosshairs-mk2" or "crosshairs"
 		surface.create_entity({name = projectile, target = target, force = force, position = CrosshairsPosition, speed = 0})
 		for i, player in pairs(game.connected_players) do
-			if settings.get_player_settings(player)["ion-cannon-play-klaxon"].value and storage.klaxonTick < current_tick then
-				storage.klaxonTick = current_tick + 60
-				player.play_sound({path = "ion-cannon-klaxon", volume_modifier = settings.get_player_settings(player)["ion-cannon-klaxon-volume"].value / 100})
+			if player.controller_type ~= defines.controllers.character and player.controller_type ~= defines.controllers.remote then goto next_player end
+			local klaxon_distance = settings.get_player_settings(player)["ion-cannon-play-klaxon"].value
+			if klaxon_distance == "none" then goto next_player end
+			if klaxon_distance == "surface" and player.physical_surface.name ~= surface.name then goto next_player end
+			if storage.klaxonTick >= current_tick then goto next_player end
+			storage.klaxonTick = current_tick + 60
+			local max_volume = settings.get_player_settings(player)["ion-cannon-klaxon-volume"].value / 100
+			if klaxon_distance == "local" then
+				--WORKOROUND for too quiet entity placement sound
+				--create additional sound at players position
+				local max_distance = 32 -- Maximum distance up to which the sound is audible
+				local distance = math.sqrt((player.physical_position.x - CrosshairsPosition.x)^2 + (player.physical_position.y - CrosshairsPosition.y)^2)
+				if distance <= max_distance then
+					-- Calculate the volume based on the distance
+					local volume = (1 - (distance / max_distance)) --[[ 1 in the near, 0 at the edge]]--* max_volume
+					player.play_sound({path = "ion-cannon-klaxon", position = player.physical_position, volume_modifier = volume})
+				end
+			else
+				player.play_sound({path = "ion-cannon-klaxon", position=player.physical_position, volume_modifier = max_volume})
 			end
+
+			::next_player::
 		end
 		--if not player or not player.cheat_mode then
 			local cannons = IonCannonStorage.fromForce(force)
@@ -214,7 +232,7 @@ function IonCannon.install(force, surface)
 	Control.enableNthTick60()
 	for _, player in pairs(force.connected_players) do
 		init_GUI(player)
-		playSoundForPlayer("ion-cannon-charging", player)
+		playSoundForPlayer(mod.defines.sound.charging, player)
 	end
 	if IonCannonStorage.count(force) == 1 then
 		force.print({"congratulations-first"})

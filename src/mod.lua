@@ -27,6 +27,15 @@ mod.recipe = {
 	cannon_mk2 = "orbital-ion-cannon-mk2"
 }
 
+mod.defines = {}
+
+mod.defines.sound = {
+	ready = "ion-cannon-ready",
+	unable_to_comply = "unable-to-comply",
+	charging = "ion-cannon-charging",
+	select_target = "select-target"
+}
+
 _G.trace = KuxCoreLib.Trace
 trace.prefix_sign = "🛰️"
 trace.sign_color = trace.colors.purple

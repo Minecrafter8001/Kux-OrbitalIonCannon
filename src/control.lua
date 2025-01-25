@@ -129,7 +129,7 @@ function this.process_60_ticks(e)
 			for i, player in pairs(force.connected_players) do
 				if storage.readyTick[player.index] < current_tick then
 					storage.readyTick[player.index] = current_tick + settings.get_player_settings(player)["ion-cannon-ready-ticks"].value
-					playSoundForPlayer("ion-cannon-ready", player)
+					playSoundForPlayer(mod.defines.sound.ready, player)
 				end
 			end
 		end

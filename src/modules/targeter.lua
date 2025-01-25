@@ -10,7 +10,7 @@ function this.on_player_cursor_stack_changed(event)
 	if not isHolding({name = "ion-cannon-targeter", count = 1}, player) and not isHolding({name = "ion-cannon-targeter-mk2", count = 1}, player)then return end
 	if player.character and not Permissions.hasPermission(player.index) then
 		player.print({"ion-permission-denied"})
-		playSoundForPlayer("unable-to-comply", player)
+		playSoundForPlayer(mod.defines.sound.unable_to_comply, player)
 		if Version.baseVersionGreaterOrEqual1d1() then
 			player.clear_cursor() --COMPATIBILITY 1.1
 		else
@@ -19,7 +19,7 @@ function this.on_player_cursor_stack_changed(event)
 		--global.holding_targeter[player.index] = false
 	elseif ((IonCannonStorage.count(player.force) > 0 and not IonCannon.isAllIonCannonOnCooldown(player))) --and not global.holding_targeter[player.index]
 	then
-		playSoundForPlayer("select-target", player)
+		playSoundForPlayer(mod.defines.sound.select_target, player)
 	end
 end
 
