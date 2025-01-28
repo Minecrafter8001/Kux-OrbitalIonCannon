@@ -327,6 +327,8 @@ data:extend{
 	}
 }
 
+
+
 data:extend{
 	{
 		type = "explosion",
@@ -334,7 +336,8 @@ data:extend{
 		flags = {"not-on-map"},
 		animations = {
 			{
-				filename = "__base__/graphics/entity/medium-explosion/medium-explosion.png",
+				--filename = "__base__/graphics/entity/medium-explosion/medium-explosion.png", --removed in 2.0.33
+				filename = mod.path.."graphics/medium-explosion.png",
 				priority = "high",
 				width = 112,
 				height = 94,
