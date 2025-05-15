@@ -2,8 +2,8 @@ local Events = KuxCoreLib.Events
 require "modules/tools"
 require "modules/IonCannonStorage"
 local mod_gui = require("mod-gui")
-local ElementBuilder = KuxCoreLib.GuiBuilder.ElementBuilder
-local GuiElementCache = KuxCoreLib.GuiElementCache
+local ElementBuilder = KuxGuiLib.require.GuiBuilder.ElementBuilder
+local GuiElementCache = KuxGuiLib.require.GuiElementCache
 
 
 UiElementDefinitions = {
@@ -290,9 +290,9 @@ function update_GUI(player)
 	if button then
 		local numReadyCannons = IonCannon.countReady(force, surfaceName)
 		local numCannons = IonCannon.countOrbitingIonCannons (force, surfaceName)
-		if #button.children == 0 then
-			createButtonContent(button)
-		end
+		--if #button.children == 0 then createButtonContent(button) end
+		button.clear(); createButtonContent(button) --WORKAROUND for GUI Unifier
+
 		button.children[1].children[1].children[1].caption = tostring(numCannons)
 		if numReadyCannons > 0 then
 			button.children[1].children[2].children[1].caption = tostring(numReadyCannons)

@@ -11,8 +11,7 @@
 			},
 			{
 				"name": "Debug",
-				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug\\bin\\x64\\factorio.exe",
-				"active": true
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\Debug\\bin\\x64\\factorio.exe"
 			},
 			{
 				"name": "Debug-X",
@@ -21,6 +20,11 @@
 			{
 				"name": "OIC Vanilla",
 				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\ion-cannon-vanilla\\bin\\x64\\factorio.exe"
+			},
+			{
+				"name": "5dim",
+				"factorioPath": "e:\\Program Files\\Factorio\\2.0\\5dim\\bin\\x64\\factorio.exe",
+				"active": true
 			}
 		],
 		"Lua.workspace.userThirdParty": [
@@ -30,6 +34,8 @@
 		"Lua.workspace.checkThirdParty": "ApplyInMemory",
 		"Lua.workspace.library": [
 			"../Kux-CoreLib/src/lib",
+			"../Kux-CoreLib/src/stdlib",
+			"../Kux-GuiLib/src/lib",
 			"../Factorio/2.0/meta"
 		]
 	}
