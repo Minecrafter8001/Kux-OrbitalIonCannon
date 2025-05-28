@@ -118,7 +118,6 @@ end
 
 --Adds an ion cannon. Ensures Ion cannons aren't added in orbit.
 --Returns the name of the surface the cannon was added to.
-
 ---@param force integer|string|LuaForce
 ---@param surface string|LuaSurface
 ---@return string

@@ -254,6 +254,8 @@ if not c_on_pre_build then c_on_pre_build = (defines.events--[[@as any]]).on_put
 Events.on_event(c_on_pre_build, this.on_pre_build)
 Events.on_event(defines.events.on_rocket_launched, this.on_rocket_launched)
 
+
+
 Events.on_init(this.initialize)
 Events.on_load(this.onLoad)
 script.on_configuration_changed(this.initialize)

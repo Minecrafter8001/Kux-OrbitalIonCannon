@@ -31,10 +31,10 @@ do --#region ElementBuilder
 	local empty_widget = eb.emptywidget
 
 	createButtonContent = function(button)
-		ElementBuilder.createView(button,
-		empty_widget{
-			width = 32, height = 32,
-			children = {
+		ElementBuilder.createView{
+			container = button,
+
+		empty_widget{ width = 32, height = 32, children = {
 				flow{
 					width = 32, height = 32,
 					horizontal_align = "right",
@@ -53,7 +53,7 @@ do --#region ElementBuilder
 				}
 			}
 		}
-		)
+	}
 	end
 end --#endregion ElementBuilder
 

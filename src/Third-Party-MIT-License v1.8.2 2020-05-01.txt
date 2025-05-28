@@ -1,3 +1,10 @@
+Third-Party License Notice
+
+This license applies to the original version 1.8.2, released on May 1, 2020,  
+which was developed for Factorio v0.18.22.  
+It is included here solely for historical and attribution purposes.  
+The current code is licensed under CC BY-NC-ND 4.0.
+
 The MIT License (MIT)
 
 Copyright (c) 2016 Supercheese
